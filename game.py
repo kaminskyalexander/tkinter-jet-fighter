@@ -1,28 +1,22 @@
 from setup import *
 from inputs import InputListener
 from vector import Vector2
+from player import Player
 
 inputs = InputListener(root)
 
 from polygon import draw
 
-
-angle = 0
+player = Player(0, 0)
 
 def update():
-	global angle
+	inputs.refresh()
+	if inputs.key(*binds["accelerate"]): player.speed = min(0.025, player.speed + 0.0001)
+	if inputs.key(*binds["decelerate"]): player.speed = max(0.005, player.speed - 0.0001)
+	if inputs.key(*binds["left"]): player.angle -= 2
+	if inputs.key(*binds["right"]): player.angle += 2
 	canvas.delete("all")
-	draw(
-		canvas, 
-		[
-			Vector2(0, -0.1),
-			Vector2(-0.1, 0.1),
-			Vector2(0.1, 0.1)
-		],
-		Vector2(0, 0),
-		angle
-	)
-	angle += 1
+	player.update(canvas)
 
 loop(update)
 tk.mainloop()

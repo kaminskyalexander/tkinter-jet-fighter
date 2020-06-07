@@ -2,8 +2,8 @@ import tkinter as tk
 import time
 
 root = tk.Tk()
-width = 1280
-height = 720
+width = 800
+height = 800
 fps = 60
 
 canvas = tk.Canvas(
@@ -33,6 +33,11 @@ binds = {
 	"f10": (121, "trigger"),
 	"f11": (122, "trigger"),
 	"f12": (133, "trigger"),
+	# Movement ........................
+	"accelerate": (87, "press"),
+	"decelerate": (83, "press"),
+	"left": (65, "press"),
+	"right": (68, "press"),
 }
 
 # Force show the window
