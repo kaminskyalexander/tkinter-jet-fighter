@@ -12,50 +12,60 @@ def pixelFromPosition(vector):
 	y = (height/2) + (height/2) * vector.y
 	return x, y
 
-def draw(canvas, vertices, translation, rotationAngle):
+class Polygon:
 
-	rotationAngle = radians(rotationAngle)
+	def __init__(self, *vertices, **properties):
+		self.vertices = vertices
+		self.transformedVertices = vertices[:]
+		self.properties = properties
 
-	matrix = [
-		[cos(rotationAngle), -sin(rotationAngle)],
-		[sin(rotationAngle),  cos(rotationAngle)]
-	]
+	def draw(self, canvas):
+		canvas.create_polygon([pixelFromPosition(vertex) for vertex in self.transformedVertices], **self.properties)
 
-	transformedVertices = []
-	for vertex in vertices:
-		newPoint = Vector2(
-			vertex.x * matrix[0][0] + vertex.y * matrix[0][1], 
-			vertex.x * matrix[1][0] + vertex.y * matrix[1][1]
-		)
-		
-		newPoint += translation
-		transformedVertices.append(newPoint)
-		
-	return canvas.create_polygon([pixelFromPosition(vertex) for vertex in transformedVertices], fill = "red")
+	def transform(self, translation, rotationAngle):
+		rotationAngle = radians(rotationAngle)
 
+		matrix = [
+			[cos(rotationAngle), -sin(rotationAngle)],
+			[sin(rotationAngle),  cos(rotationAngle)]
+		]
 
-# def rotate2dLine(line, degrees, origin = None):
-# 	angle = degrees*pi/180
+		self.transformedVertices = []
+		for vertex in self.vertices:
+			newPoint = Vector2(
+				vertex.x * matrix[0][0] + vertex.y * matrix[0][1], 
+				vertex.x * matrix[1][0] + vertex.y * matrix[1][1]
+			)
+			newPoint += translation
+			self.transformedVertices.append(newPoint)		
 
-# 	x1, y1 = line[0]
-# 	x2, y2 = line[1]
+	@property
+	def uniqueNormals(self):
+		axes = []
+		for i in range(len(self.transformedVertices)):
+			# Get the current vertex
+			p1 = self.transformedVertices[i]
+			# Get the next vertex
+			p2 = self.transformedVertices[i+1 if i+1 != len(self.transformedVertices) else 0]
+			# Subtract the two to get the edge vector
+			edge = p1 - p2
+			# Get either perpendicular vector
+			# (x, y) => (-y, x) or (y, -x)
+			normal = Vector2(-edge.y, edge.x)
+			# Make sure the normal is unique
+			if normal not in axes and -normal not in axes:
+				axes.append(normal.normalized)
+		return axes
 
-# 	if origin != None:
-# 		mx, my = origin
-# 	else:
-# 		mx = (x1 + x2) / 2
-# 		my = (y1 + y2) / 2
-
-# 	# Use a rotation matrix, centering the point to (0, 0)
-# 	rotated = (
-# 		(
-# 			(cos(angle) * (x1-mx) - sin(angle) * (y1-my)) + mx,
-# 			(sin(angle) * (x1-mx) + cos(angle) * (y1-my)) + my
-# 		),
-# 		(
-# 			(cos(angle) * (x2-mx) - sin(angle) * (y2-my)) + mx,
-# 			(sin(angle) * (x2-mx) + cos(angle) * (y2-my)) + my
-# 		)
-# 	)
-
-# 	return rotated
+	@property
+	def boundingBox(self):
+		minX = self.transformedVertices[0].x
+		minY = self.transformedVertices[0].y
+		maxX = self.transformedVertices[0].x
+		maxY = self.transformedVertices[0].y
+		for vertex in self.transformedVertices:
+			if vertex.x < minX: minX = vertex.x
+			if vertex.x > maxX: maxX = vertex.x
+			if vertex.y < minY: minY = vertex.y
+			if vertex.y > maxY: maxY = vertex.y
+		return (minX, minY), (maxX, maxY)

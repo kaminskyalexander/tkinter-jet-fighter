@@ -5,9 +5,7 @@ from player import Player
 
 inputs = InputListener(root)
 
-from polygon import draw
-
-player = Player(0, 0)
+player = Player(Vector2(0, 0))
 
 def update():
 	inputs.refresh()
