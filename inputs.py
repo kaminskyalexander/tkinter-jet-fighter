@@ -19,7 +19,7 @@
 # * Mouse button corresponds to a numerical value of a certain mouse button
 #   (left click is 1, middle click is 2, right click is 3).
 # * Mouse motion is a coordinate with the origin at the top right of the window.
-# * Valid states are: "trigger", "pressed", "release" and "*" (wildcard).
+# * Valid states are: "trigger", "press", "release" and "*" (wildcard).
 
 # Retrieving Keyboard and Mouse Button Presses..................................
 # A list of tuples is returned via the properties self.keys and self.buttons.
