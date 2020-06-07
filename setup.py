@@ -38,6 +38,7 @@ binds = {
 	"decelerate": (83, "press"),
 	"left": (65, "press"),
 	"right": (68, "press"),
+	"shoot": (32, "trigger")
 }
 
 # Force show the window
