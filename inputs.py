@@ -18,7 +18,7 @@
 #   finding a keycode for a certain key is the website https://keycode.info.
 # * Mouse button corresponds to a numerical value of a certain mouse button
 #   (left click is 1, middle click is 2, right click is 3).
-# * Mouse motion is a coordinate with the origin at the top right of the window.
+# * Mouse motion is a coordinate with the origin at the top left of the window.
 # * Valid states are: "trigger", "press", "release" and "*" (wildcard).
 
 # Retrieving Keyboard and Mouse Button Presses..................................
