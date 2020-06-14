@@ -12,10 +12,27 @@ class Player(Entity):
 	def __init__(self, position, angle):
 		self.angle = angle
 		self.speed = 0.01
+		self.acceleration = 0.0001
+		self.maximumSpeed = 0.015
+		self.minimumSpeed = 0.005
+		self.steeringRate = 2
 		self.timeout = 0
 		self.bullets = []
 		shape = Polygon(Vector2(-0.1, 0.1),	Vector2(-0.1, -0.1), Vector2(0.1, 0), fill = "red")
 		super().__init__(position, shape)
+
+	def adjustSpeed(self, speed):
+		if self.timeout == 0:
+			self.speed = max(self.minimumSpeed, min(self.maximumSpeed, self.speed + speed))
+
+	def adjustAngle(self, angle):
+		if self.timeout == 0:
+			self.angle += angle
+
+	def accelerate(self): self.adjustSpeed( self.acceleration)
+	def decelerate(self): self.adjustSpeed(-self.acceleration)
+	def steerLeft(self):  self.adjustAngle(-self.steeringRate)
+	def steerRight(self): self.adjustAngle (self.steeringRate)
 
 	def shoot(self, bullets):
 		bulletDistance = 0.2
