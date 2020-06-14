@@ -11,7 +11,10 @@ class Bullet(Entity):
 		self.angle = angle
 		self.speed = 0.02
 		self.velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
-		self.lifespan = 150
+		self.lifespan = 140
+		self.decay = 40
+		self.exploded = False
+		self.explosionDuration = 30
 		shape = Polygon(
 			Vector2(-0.02, -0.02),
 			Vector2(0.02, -0.02), 
@@ -41,17 +44,24 @@ class Bullet(Entity):
 		super().__init__(position, shape)
 
 	def explode(self):
-		self.lifespan = 0
+		self.exploded = True
 
 	def update(self, canvas):
 
-		if self.lifespan < 0:
+		if self.exploded:
 			self.explosionShape.transform(self.position, 0)
 			self.explosionShape.draw(canvas)
+			self.explosionDuration -= 1
 		else:
 			self.position += self.velocity
 			self.screenWrap()
 			self.polygon.transform(self.position, 0)
-			self.polygon.draw(canvas)
 
-		self.lifespan -= 1
+			if self.lifespan < 0:
+				# Make bullets flash as they despawn
+				if self.lifespan // 4 % 2 == 0:
+					self.polygon.draw(canvas)
+			else:
+				self.polygon.draw(canvas)
+
+			self.lifespan -= 1

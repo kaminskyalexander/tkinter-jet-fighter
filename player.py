@@ -1,4 +1,5 @@
 from math import cos, sin, radians
+from random import randrange
 
 from vector import Vector2
 from entity import Entity 
@@ -22,17 +23,21 @@ class Player(Entity):
 		bullets.append(Bullet(self.position + bulletPosition, self.angle))
 
 	def explode(self):
-		self.timeout = 30
+		self.timeout = randrange(40, 140)
 
 	def update(self, canvas):
 		
 		if self.timeout > 0:
+			self.angle += 4
+			self.polygon.transform(self.position, self.angle)
+			if self.timeout // 4 % 2 == 0:
+				self.polygon.draw(canvas)
 			self.timeout -= 1
 		else:
 			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
 			self.position += velocity
 
-		self.polygon.transform(self.position, self.angle)
-		self.polygon.draw(canvas)
+			self.polygon.transform(self.position, self.angle)
+			self.polygon.draw(canvas)
 
-		self.screenWrap()
+			self.screenWrap()
