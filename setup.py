@@ -43,7 +43,11 @@ binds = {
 	"p2-decelerate": (40, "press"),
 	"p2-left": (37, "press"),
 	"p2-right": (39, "press"),
-	"p2-shoot": (13, "trigger")
+	"p2-shoot": (13, "trigger"),
+	# Interface .......................
+	"ui-select": (32, "trigger"),
+	"ui-up": (38, "trigger"),
+	"ui-down":(40, "trigger")
 }
 
 # Force show the window
