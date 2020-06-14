@@ -21,11 +21,24 @@ def update():
 	player2.update(canvas)
 
 	for bullet in bullets:
-		if bullet.lifespan == 0:
-			bullets.remove(bullet)
 		bullet.update(canvas)
-		bullet.detectCollision(player1)
-		bullet.detectCollision(player2)
+			
+		if bullet.lifespan == -15:
+			bullets.remove(bullet)
+
+		elif bullet.lifespan >= 0:
+			
+			if bullet.detectCollision(player1):
+				print("i hit player 1")
+				player1.explode()
+				bullet.explode()
+
+			if bullet.detectCollision(player2):
+				print("i hit player 2")
+				player2.explode()
+				bullet.explode()
+
+		
 
 loop(update)
 tk.mainloop()

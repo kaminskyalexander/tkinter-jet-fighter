@@ -18,7 +18,4 @@ class Entity:
 		if self.position.y < -1 - halfHeight: self.position.y =  1 + halfHeight
 
 	def detectCollision(self, entity):
-		if SAT.detectCollision(self.polygon, entity.polygon):
-			self.polygon.properties["fill"] = "white"
-		else:
-			self.polygon.properties["fill"] = "red"
+		return SAT.detectCollision(self.polygon, entity.polygon)

@@ -3,6 +3,7 @@ from vector import Vector2
 from entity import Entity
 
 from math import radians, sin, cos
+from random import randrange
 
 class Bullet(Entity):
 
@@ -18,12 +19,39 @@ class Bullet(Entity):
 			Vector2(-0.02, 0.02),
 			fill = "green"
 		)
+		self.explosionShape = Polygon(
+			Vector2( .000000,  .100000),
+			Vector2( .018588,  .044876), 
+			Vector2( .070711,  .070711),
+			Vector2( .044876,  .018588),
+			Vector2( .100000,  .000000),
+			Vector2( .044876, -.018588),
+			Vector2( .070711, -.070711),
+			Vector2( .018588, -.044876),
+			Vector2( .000000, -.100000),
+			Vector2(-.018588, -.044876), 
+			Vector2(-.070711, -.070711),
+			Vector2(-.044876, -.018588),
+			Vector2(-.100000,  .000000),
+			Vector2(-.044876,  .018588),
+			Vector2(-.070711,  .070711),
+			Vector2(-.018588,  .044876),
+			fill = "yellow"
+		)
 		super().__init__(position, shape)
 
-	def update(self, canvas):
-		self.position += self.velocity
-		self.screenWrap()
-		self.lifespan -= 1
+	def explode(self):
+		self.lifespan = 0
 
-		self.polygon.transform(self.position, 0)
-		self.polygon.draw(canvas)
+	def update(self, canvas):
+
+		if self.lifespan < 0:
+			self.explosionShape.transform(self.position, 0)
+			self.explosionShape.draw(canvas)
+		else:
+			self.position += self.velocity
+			self.screenWrap()
+			self.polygon.transform(self.position, 0)
+			self.polygon.draw(canvas)
+
+		self.lifespan -= 1
