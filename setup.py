@@ -33,12 +33,17 @@ binds = {
 	"f10": (121, "trigger"),
 	"f11": (122, "trigger"),
 	"f12": (133, "trigger"),
-	# Movement ........................
-	"accelerate": (87, "press"),
-	"decelerate": (83, "press"),
-	"left": (65, "press"),
-	"right": (68, "press"),
-	"shoot": (32, "trigger")
+	# Gameplay ........................
+	"p1-accelerate": (87, "press"),
+	"p1-decelerate": (83, "press"),
+	"p1-left": (65, "press"),
+	"p1-right": (68, "press"),
+	"p1-shoot": (32, "trigger"),
+	"p2-accelerate": (38, "press"),
+	"p2-decelerate": (40, "press"),
+	"p2-left": (37, "press"),
+	"p2-right": (39, "press"),
+	"p2-shoot": (13, "trigger")
 }
 
 # Force show the window
