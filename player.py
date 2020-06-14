@@ -18,6 +18,7 @@ class Player(Entity):
 		self.steeringRate = 2
 		self.timeout = 0
 		self.bullets = []
+		self.score = 0
 		shape = Polygon(Vector2(-0.1, 0.1),	Vector2(-0.1, -0.1), Vector2(0.1, 0), fill = "red")
 		super().__init__(position, shape)
 

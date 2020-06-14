@@ -34,14 +34,16 @@ def update():
 				continue
 
 			if bullet.detectCollision(player1) and player1.timeout == 0:
-				print("i hit player 1")
+				player1.score += 1
 				player1.explode()
 				bullet.explode()
 
 			if bullet.detectCollision(player2) and player2.timeout == 0:
-				print("i hit player 2")
+				player2.score += 1
 				player2.explode()
 				bullet.explode()
+
+	canvas.create_text(0, 0, text = f"{player1.score} : {player2.score}", fill = "white", font = ("Arial", 36, ""), anchor = "nw")
 
 loop(update)
 tk.mainloop()
