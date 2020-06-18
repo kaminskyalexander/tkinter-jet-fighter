@@ -6,8 +6,8 @@ from player import Player
 class Game:
 
 	def __init__(self):
-		self.player1 = Player(Vector2(0, -0.5), 90)
-		self.player2 = Player(Vector2(0, 0.5), -90)
+		self.player1 = Player(Vector2(-0.5, -0.5), 90)
+		self.player2 = Player(Vector2(0.5, 0.5), -90)
 		self.bullets = []
 
 	def update(self):
