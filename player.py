@@ -19,8 +19,43 @@ class Player(Entity):
 		self.timeout = 0
 		self.bullets = []
 		self.score = 0
-		shape = Polygon(Vector2(-0.1, 0.1),	Vector2(-0.1, -0.1), Vector2(0.1, 0), fill = "red")
-		super().__init__(position, shape)
+		shape = Polygon(
+			Vector2( 0.0637760,  0.0000000),
+			Vector2( 0.0526240, -0.0099696), 
+			Vector2( 0.0133332, -0.0127572), 
+			Vector2( 0.0004352, -0.0619000),
+			Vector2(-0.0180848, -0.0646520), 
+			Vector2(-0.0133332, -0.0127572), 
+			Vector2(-0.0558679, -0.0127572), 
+			Vector2(-0.0619320, -0.0255467),
+			Vector2(-0.0673440, -0.0255467), 
+			Vector2(-0.0630360,  0.0000000), 
+			Vector2(-0.0673440,  0.0255467), 
+			Vector2(-0.0619320,  0.0255467), 
+			Vector2(-0.0558679,  0.0127572), 
+			Vector2(-0.0133332,  0.0127572), 
+			Vector2(-0.0180848,  0.0646520), 
+			Vector2( 0.0004352,  0.0619000), 
+			Vector2( 0.0133332,  0.0127572),
+			Vector2( 0.0526240,  0.0099696),
+			fill = "red"
+		)
+		print(*shape.vertices)
+		hitboxes = [
+			Polygon(
+				Vector2(-0.015, -0.075),
+				Vector2( 0.015, -0.075),
+				Vector2( 0.015,  0.075),
+				Vector2(-0.015,  0.075)
+			),
+			Polygon(
+				Vector2(-0.09, -0.025),
+				Vector2( 0.08, -0.025),
+				Vector2( 0.08,  0.025),
+				Vector2(-0.09,  0.025)
+			)
+		]
+		super().__init__(position, shape, hitboxes)
 
 	def adjustSpeed(self, speed):
 		if self.timeout == 0:
@@ -36,7 +71,7 @@ class Player(Entity):
 	def steerRight(self): self.adjustAngle(self.steeringRate)
 
 	def shoot(self):
-		bulletDistance = 0.2
+		bulletDistance = 0.1
 		bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)
 		return Bullet(self.position + bulletPosition, self.angle)
 
@@ -44,10 +79,10 @@ class Player(Entity):
 		self.timeout = randrange(40, 140)
 
 	def update(self, canvas):
-		
+
 		if self.timeout > 0:
 			self.angle += 4
-			self.polygon.transform(self.position, self.angle)
+			self.transform(self.position, self.angle)
 			if self.timeout // 4 % 2 == 0:
 				self.polygon.draw(canvas)
 			self.timeout -= 1
@@ -55,7 +90,14 @@ class Player(Entity):
 			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
 			self.position += velocity
 
-			self.polygon.transform(self.position, self.angle)
+			self.transform(self.position, self.angle)
 			self.polygon.draw(canvas)
 
 			self.screenWrap()
+
+		# draw hitboxes
+		for hitbox in self.hitboxes:
+			hitbox.drawWireframe(canvas, "blue")
+
+
+

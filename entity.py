@@ -3,9 +3,10 @@ from sat import SAT
 
 class Entity:
 
-	def __init__(self, position, polygon):
+	def __init__(self, position, polygon, hitboxes = None):
 		self.position = position
 		self.polygon = polygon
+		self.hitboxes = hitboxes if hitboxes != None else [polygon]
 
 	def screenWrap(self):
 		boundingBox = self.polygon.boundingBox
@@ -17,5 +18,13 @@ class Entity:
 		if self.position.y >  1 + halfHeight: self.position.y = -1 - halfHeight
 		if self.position.y < -1 - halfHeight: self.position.y =  1 + halfHeight
 
+	def transform(self, translation, rotationAngle):
+		self.polygon.transform(translation, rotationAngle)
+		for hitbox in self.hitboxes:
+			hitbox.transform(translation, rotationAngle)
+
 	def detectCollision(self, entity):
-		return SAT.detectCollision(self.polygon, entity.polygon)
+		for hitbox1 in self.hitboxes:
+			for hitbox2 in entity.hitboxes:
+				if SAT.detectCollision(hitbox1, hitbox2):
+					return True

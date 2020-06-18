@@ -47,7 +47,13 @@ binds = {
 	# Interface .......................
 	"ui-select": (32, "trigger"),
 	"ui-up": (38, "trigger"),
-	"ui-down":(40, "trigger")
+	"ui-down": (40, "trigger"),
+	"ui-p1-up": (87, "trigger"),
+	"ui-p1-down": (83, "trigger"),
+	"ui-p1-select": (32, "trigger"),
+	"ui-p2-up": (38, "trigger"),
+	"ui-p2-down": (40, "trigger"),
+	"ui-p2-select": (13, "trigger"),
 }
 
 # Force show the window

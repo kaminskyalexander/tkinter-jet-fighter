@@ -16,11 +16,11 @@ class Bullet(Entity):
 		self.exploded = False
 		self.explosionDuration = 30
 		shape = Polygon(
-			Vector2(-0.02, -0.02),
-			Vector2(0.02, -0.02), 
-			Vector2(0.02, 0.02), 
-			Vector2(-0.02, 0.02),
-			fill = "green"
+			Vector2(-0.01, -0.01),
+			Vector2(0.01, -0.01), 
+			Vector2(0.01, 0.01), 
+			Vector2(-0.01, 0.01),
+			fill = "yellow"
 		)
 		self.explosionShape = Polygon(
 			Vector2( .000000,  .100000),

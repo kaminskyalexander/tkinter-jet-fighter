@@ -22,6 +22,9 @@ class Polygon:
 	def draw(self, canvas):
 		canvas.create_polygon([pixelFromPosition(vertex) for vertex in self.transformedVertices], **self.properties)
 
+	def drawWireframe(self, canvas, color):
+		canvas.create_polygon([pixelFromPosition(vertex) for vertex in self.transformedVertices], fill = "", outline = color)
+
 	def transform(self, translation, rotationAngle):
 		rotationAngle = radians(rotationAngle)
 

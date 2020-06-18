@@ -39,12 +39,12 @@ class Game:
 					continue
 
 				if bullet.detectCollision(self.player1) and self.player1.timeout == 0:
-					self.player1.score += 1
+					self.player2.score += 1
 					self.player1.explode()
 					bullet.explode()
 
 				if bullet.detectCollision(self.player2) and self.player2.timeout == 0:
-					self.player2.score += 1
+					self.player1.score += 1
 					self.player2.explode()
 					bullet.explode()
 
@@ -55,16 +55,21 @@ class Splash:
 		self.state = "title"
 		self.selections = ["Player vs Player", "Player vs AI", "How to play"]
 		self.selectionIndex = 0
+		self.selectionIndexAlt = 0
+		self.colourOptions = ["red", "orange", "yellow", "green", "cyan", "blue", "purple", "pink"]
+		self.splashImage = tk.PhotoImage(file = "assets/title.png").zoom(8)
 	
 	def update(self):
-		canvas.create_text(400, 100, text = "Jet Fighter!!", fill = "white", font = ("Arial", "64", "bold"))
 		if self.state == "title":
+			canvas.create_rectangle(0, 0, 800, 800, fill = "darkblue")
+			canvas.create_image(400, 200, image = self.splashImage)
 			# Flashing text
 			if time.time() // 0.5 % 2:
-				canvas.create_text(400, 300, text = "Press space...", fill = "white", font = ("Arial", "30", ""))
+				canvas.create_text(400, 500, text = "PRESS SPACE TO PLAY", fill = "white", font = ("Fixedsys", "30", ""))
 
 			if inputs.key(*binds["ui-select"]): self.state = "selection"
 		elif self.state == "selection":
+			canvas.create_image(400, 200, image = self.splashImage)
 			for i, selection in enumerate(self.selections):
 				canvas.create_text(100, 300 + i*50, text = selection, fill = "white", font = ("Arial", "30", ""), anchor = "nw")
 			# Flashing cursor
@@ -73,7 +78,32 @@ class Splash:
 			if inputs.key(*binds["ui-down"]): self.selectionIndex = (self.selectionIndex + 1) % len(self.selections)
 			if inputs.key(*binds["ui-up"]): self.selectionIndex = (self.selectionIndex - 1) % len(self.selections)
 			if inputs.key(*binds["ui-select"]):
-				return self.selectionIndex
+				if self.selectionIndex == 0: 
+					self.selectionIndex = 0
+					self.selectionIndexAlt = 0
+					self.state = "colourSelection"
+		elif self.state == "colourSelection":
+			canvas.create_text(200, 150, text = "Player 1 colour", fill = "white", font = ("Arial", "30", ""))
+			canvas.create_text(600, 150, text = "Player 2 colour", fill = "white", font = ("Arial", "30", ""))
+			# draw two palettes of colours
+			for i in range(2):
+				for j, colour in enumerate(self.colourOptions):
+					canvas.create_rectangle(50 + (j%3)*100 + i*400, 200 + (j//3)*100, 150 + (j%3)*100 + i*400, 300 + (j//3)*100, fill = colour)
+				canvas.create_rectangle(
+					((self.selectionIndex if i == 0 else self.selectionIndexAlt) % 3 ) * 100 + 50 + i*400,
+					((self.selectionIndex if i == 0 else self.selectionIndexAlt) // 3) *100 + 200, 
+					((self.selectionIndex if i == 0 else self.selectionIndexAlt) % 3 ) * 100 + 150 + i*400, 
+					((self.selectionIndex if i == 0 else self.selectionIndexAlt) // 3) *100 + 300 , 
+					fill = "", width = 10, outline = "white"
+				)
+
+
+			if inputs.key(*binds["ui-p1-up"]):  self.selectionIndex = (self.selectionIndex - 1) % len(self.colourOptions)
+			if inputs.key(*binds["ui-p1-down"]): self.selectionIndex = (self.selectionIndex + 1) % len(self.colourOptions)
+
+			if inputs.key(*binds["ui-p2-up"]):  self.selectionIndexAlt = (self.selectionIndexAlt - 1) % len(self.colourOptions)
+			if inputs.key(*binds["ui-p2-down"]): self.selectionIndexAlt = (self.selectionIndexAlt + 1) % len(self.colourOptions)
+			if inputs.key(*binds["ui-select"]): return 0
 
 inputs = InputListener(root)
 splash = Splash()
