@@ -40,7 +40,6 @@ class Player(Entity):
 			Vector2( 0.0526240,  0.0099696),
 			fill = "red"
 		)
-		print(*shape.vertices)
 		hitboxes = [
 			Polygon(
 				Vector2(-0.015, -0.075),
@@ -97,7 +96,11 @@ class Player(Entity):
 
 		# draw hitboxes
 		for hitbox in self.hitboxes:
-			hitbox.drawWireframe(canvas, "blue")
+			hitbox.drawWireframe(canvas, "white")
+
+		# draw boundingbox
+		bbox = self.polygon.boundingBox
+		Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
 
 
 
