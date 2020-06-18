@@ -70,9 +70,10 @@ class Player(Entity):
 	def steerRight(self): self.adjustAngle(self.steeringRate)
 
 	def shoot(self):
-		bulletDistance = 0.1
-		bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)
-		return Bullet(self.position + bulletPosition, self.angle)
+		if self.timeout == 0:
+			bulletDistance = 0.1
+			bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)
+			self.bullets.append(Bullet(self.position + bulletPosition, self.angle))
 
 	def explode(self):
 		self.timeout = randrange(40, 140)

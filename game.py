@@ -8,34 +8,34 @@ class Game:
 	def __init__(self):
 		self.player1 = Player(Vector2(-0.5, -0.5), 90)
 		self.player2 = Player(Vector2(0.5, 0.5), -90)
-		self.bullets = []
 
 	def update(self):
 		if inputs.key(*binds["p1-accelerate"]): self.player1.accelerate()
 		if inputs.key(*binds["p1-decelerate"]): self.player1.decelerate()
 		if inputs.key(*binds["p1-left"]):       self.player1.steerLeft()
 		if inputs.key(*binds["p1-right"]):      self.player1.steerRight()
-		if inputs.key(*binds["p1-shoot"]):      self.bullets.append(self.player1.shoot())
+		if inputs.key(*binds["p1-shoot"]):      self.player1.shoot()
 		if inputs.key(*binds["p2-accelerate"]): self.player2.accelerate()
 		if inputs.key(*binds["p2-decelerate"]): self.player2.decelerate()
 		if inputs.key(*binds["p2-left"]):       self.player2.steerLeft()
 		if inputs.key(*binds["p2-right"]):      self.player2.steerRight()
-		if inputs.key(*binds["p2-shoot"]):      self.bullets.append(self.player2.shoot())
+		if inputs.key(*binds["p2-shoot"]):      self.player2.shoot()
 		self.player1.update(canvas)
 		self.player2.update(canvas)
 		
-
-		for bullet in self.bullets:
+		for bullet in self.player1.bullets + self.player2.bullets:
 			bullet.update(canvas)
 				
 			if bullet.explosionDuration == 0:
-				self.bullets.remove(bullet)
+				if bullet in self.player1.bullets: self.player1.bullets.remove(bullet)
+				if bullet in self.player2.bullets: self.player2.bullets.remove(bullet)
 				continue
 			
 			if not bullet.exploded:
 
 				if bullet.lifespan == -bullet.decay:
-					self.bullets.remove(bullet)
+					if bullet in self.player1.bullets: self.player1.bullets.remove(bullet)
+					if bullet in self.player2.bullets: self.player2.bullets.remove(bullet)
 					continue
 
 				if bullet.detectCollision(self.player1) and self.player1.timeout == 0:
