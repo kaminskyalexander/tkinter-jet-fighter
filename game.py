@@ -6,47 +6,63 @@ from player import Player
 class Game:
 
 	def __init__(self):
-		self.player1 = Player(Vector2(-0.5, -0.5), 90)
-		self.player2 = Player(Vector2(0.5, 0.5), -90)
+		self.player1 = Player(Vector2(-0.5, -0.5), 90, "#f00")
+		self.player2 = Player(Vector2(0.5, 0.5), -90, "#0f0")
+		self.gameDuration = 2 * 60 * fps
+		self.gameTick = 0
 
 	def update(self):
-		if inputs.key(*binds["p1-accelerate"]): self.player1.accelerate()
-		if inputs.key(*binds["p1-decelerate"]): self.player1.decelerate()
-		if inputs.key(*binds["p1-left"]):       self.player1.steerLeft()
-		if inputs.key(*binds["p1-right"]):      self.player1.steerRight()
-		if inputs.key(*binds["p1-shoot"]):      self.player1.shoot()
-		if inputs.key(*binds["p2-accelerate"]): self.player2.accelerate()
-		if inputs.key(*binds["p2-decelerate"]): self.player2.decelerate()
-		if inputs.key(*binds["p2-left"]):       self.player2.steerLeft()
-		if inputs.key(*binds["p2-right"]):      self.player2.steerRight()
-		if inputs.key(*binds["p2-shoot"]):      self.player2.shoot()
-		self.player1.update(canvas)
-		self.player2.update(canvas)
-		
-		for bullet in self.player1.bullets + self.player2.bullets:
-			bullet.update(canvas)
-				
-			if bullet.explosionDuration == 0:
-				if bullet in self.player1.bullets: self.player1.bullets.remove(bullet)
-				if bullet in self.player2.bullets: self.player2.bullets.remove(bullet)
-				continue
-			
-			if not bullet.exploded:
+		if self.gameTick < self.gameDuration:
+			if inputs.key(*binds["p1-accelerate"]): self.player1.accelerate()
+			if inputs.key(*binds["p1-decelerate"]): self.player1.decelerate()
+			if inputs.key(*binds["p1-left"]):       self.player1.steerLeft()
+			if inputs.key(*binds["p1-right"]):      self.player1.steerRight()
+			if inputs.key(*binds["p1-shoot"]):      self.player1.shoot()
+			if inputs.key(*binds["p2-accelerate"]): self.player2.accelerate()
+			if inputs.key(*binds["p2-decelerate"]): self.player2.decelerate()
+			if inputs.key(*binds["p2-left"]):       self.player2.steerLeft()
+			if inputs.key(*binds["p2-right"]):      self.player2.steerRight()
+			if inputs.key(*binds["p2-shoot"]):      self.player2.shoot()
 
-				if bullet.lifespan == -bullet.decay:
+			self.player1.update(canvas)
+			self.player2.update(canvas)
+
+			for bullet in self.player1.bullets + self.player2.bullets:
+				bullet.update(canvas)
+					
+				if bullet.explosionDuration == 0:
 					if bullet in self.player1.bullets: self.player1.bullets.remove(bullet)
 					if bullet in self.player2.bullets: self.player2.bullets.remove(bullet)
 					continue
+				
+				if not bullet.exploded:
 
-				if bullet.detectCollision(self.player1) and self.player1.timeout == 0:
-					self.player2.score += 1
-					self.player1.explode()
-					bullet.explode()
+					if bullet.lifespan == -bullet.decay:
+						if bullet in self.player1.bullets: self.player1.bullets.remove(bullet)
+						if bullet in self.player2.bullets: self.player2.bullets.remove(bullet)
+						continue
 
-				if bullet.detectCollision(self.player2) and self.player2.timeout == 0:
-					self.player1.score += 1
-					self.player2.explode()
-					bullet.explode()
+					if bullet.detectCollision(self.player1) and self.player1.timeout == 0:
+						self.player2.score += 1
+						self.player1.explode()
+						bullet.explode()
+
+					if bullet.detectCollision(self.player2) and self.player2.timeout == 0:
+						self.player1.score += 1
+						self.player2.explode()
+						bullet.explode()
+		
+		else:
+			if self.player1.score > self.player2.score:
+				canvas.create_text(400, 400, text = "Player 1 wins!", font = ("Fixedsys", 30, ""), fill = "yellow")
+			elif self.player1.score < self.player2.score:
+				canvas.create_text(400, 400, text = "Player 2 wins!", font = ("Fixedsys", 30, ""), fill = "yellow")
+			else:
+				canvas.create_text(400, 400, text = "Tie!", font = ("Fixedsys", 30, ""), fill = "yellow")
+
+		canvas.create_text(10, 10, text = f"{self.player1.score}", font = ("Fixedsys", -80, ""), fill = "#f00", anchor = "nw")
+		canvas.create_text(790, 10, text = f"{self.player2.score}", font = ("Fixedsys", -80, ""), fill = "#0f0", anchor = "ne")
+		self.gameTick += 1
 
 # the code in this class sucks, its a prototype
 class Splash:

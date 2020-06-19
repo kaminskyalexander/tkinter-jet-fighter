@@ -9,7 +9,7 @@ from bullet import Bullet
 
 class Player(Entity):
 
-	def __init__(self, position, angle):
+	def __init__(self, position, angle, colour):
 		self.angle = angle
 		self.speed = 0.01
 		self.acceleration = 0.0001
@@ -19,6 +19,8 @@ class Player(Entity):
 		self.timeout = 0
 		self.bullets = []
 		self.score = 0
+		self.shootCooldown = 60
+		self.timeSinceLastShot = 0
 		shape = Polygon(
 			Vector2( 0.0637760,  0.0000000),
 			Vector2( 0.0526240, -0.0099696), 
@@ -38,7 +40,7 @@ class Player(Entity):
 			Vector2( 0.0004352,  0.0619000), 
 			Vector2( 0.0133332,  0.0127572),
 			Vector2( 0.0526240,  0.0099696),
-			fill = "red"
+			fill = colour
 		)
 		hitboxes = [
 			Polygon(
@@ -70,7 +72,8 @@ class Player(Entity):
 	def steerRight(self): self.adjustAngle(self.steeringRate)
 
 	def shoot(self):
-		if self.timeout == 0:
+		if self.timeout == 0 and self.timeSinceLastShot > self.shootCooldown:
+			self.timeSinceLastShot = 0
 			bulletDistance = 0.1
 			bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)
 			self.bullets.append(Bullet(self.position + bulletPosition, self.angle))
@@ -95,13 +98,15 @@ class Player(Entity):
 
 			self.screenWrap()
 
-		# draw hitboxes
-		for hitbox in self.hitboxes:
-			hitbox.drawWireframe(canvas, "white")
+			self.timeSinceLastShot += 1
 
-		# draw boundingbox
-		bbox = self.polygon.boundingBox
-		Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
+		# draw hitboxes
+		# for hitbox in self.hitboxes:
+		# 	hitbox.drawWireframe(canvas, "white")
+
+		# # draw boundingbox
+		# bbox = self.polygon.boundingBox
+		# Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
 
 
 
