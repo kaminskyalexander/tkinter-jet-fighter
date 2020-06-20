@@ -20,7 +20,7 @@ class Bullet(Entity):
 			Vector2(0.01, -0.01), 
 			Vector2(0.01, 0.01), 
 			Vector2(-0.01, 0.01),
-			fill = "yellow"
+			fill = "#ff5"
 		)
 		self.explosionShape = Polygon(
 			Vector2( .000000,  .100000),
@@ -39,7 +39,7 @@ class Bullet(Entity):
 			Vector2(-.044876,  .018588),
 			Vector2(-.070711,  .070711),
 			Vector2(-.018588,  .044876),
-			fill = "yellow"
+			fill = "#ff5"
 		)
 		super().__init__(position, shape)
 

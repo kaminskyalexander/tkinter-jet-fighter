@@ -1,9 +1,13 @@
 import tkinter as tk
 import time
 from sound import SoundManager
+from inputs import InputListener
+from vector import Vector2
 
 root = tk.Tk()
-root.config(bg = "#f00")
+root.config(bg = "#000")
+root.minsize(400, 400)
+root.title("Jet Fighter")
 width = 800
 height = 800
 fps = 60
@@ -12,7 +16,7 @@ canvas = tk.Canvas(
     root,
     width = width,
     height = height,
-    bg = "#000",
+    bg = "#444",
     highlightthickness = 0
 )
 canvas.pack()
@@ -34,6 +38,8 @@ sound = SoundManager({
 	"shoot1": "assets/shoot1.wav",
 	"spin": "assets/spin.wav"
 })
+
+inputs = InputListener(root)
 
 binds = {
 	# Modifiers .......................
@@ -68,6 +74,7 @@ binds = {
 	"ui-select": (32, "trigger"),
 	"ui-up": (38, "trigger"),
 	"ui-down": (40, "trigger"),
+	"ui-escape": (27, "trigger"),
 	"ui-p1-up": (87, "trigger"),
 	"ui-p1-down": (83, "trigger"),
 	"ui-p1-select": (32, "trigger"),
@@ -92,4 +99,19 @@ def loop(function):
 	delay = max(int(frameTime - wait), 1)
 	# Run the function again after the set delay time
 	canvas.after(delay, lambda: loop(function))
+
+def pixelFromPosition(position):
+	# Get the size of the window
+	width = canvas.winfo_width()
+	height = canvas.winfo_height()
+	# Get the coordinates in pixels based on the window width and height
+	# This should let the window be stretchable
+	x = (width/2)  + (height/2) * position.x
+	y = (height/2) + (height/2) * position.y
+	return x, y
 	
+def positionFromPixel(x, y):
+	# Get the size of the window
+	width = canvas.winfo_width()
+	height = canvas.winfo_height()
+	return Vector2((x - width/2) / (height/2), (y - height/2) / (height/2))
