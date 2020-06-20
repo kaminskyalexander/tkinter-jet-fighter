@@ -3,6 +3,7 @@ import time
 from sound import SoundManager
 
 root = tk.Tk()
+root.config(bg = "#f00")
 width = 800
 height = 800
 fps = 60
@@ -14,7 +15,13 @@ canvas = tk.Canvas(
     bg = "#000",
     highlightthickness = 0
 )
-canvas.pack(fill = "both", expand = True)
+canvas.pack()
+
+# Resize the canvas manually to ensure the aspect ratio stays locked
+def scaleCanvas(event):
+	size = min(event.width, event.height)
+	canvas.configure(width = size, height = size)
+root.bind("<Configure>", scaleCanvas)
 
 sound = SoundManager({
 	"beep": "assets/beep.wav",
