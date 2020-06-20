@@ -1,10 +1,10 @@
 from math import cos, sin, radians
 from random import randrange
 
+from setup import *
 from vector import Vector2
 from entity import Entity 
 from polygon import Polygon
-
 from bullet import Bullet
 
 class Player(Entity):
@@ -73,12 +73,15 @@ class Player(Entity):
 
 	def shoot(self):
 		if self.timeout == 0 and self.timeSinceLastShot > self.shootCooldown:
+			sound.play("shoot0")
+			sound.play("shoot1")
 			self.timeSinceLastShot = 0
 			bulletDistance = 0.1
 			bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)
 			self.bullets.append(Bullet(self.position + bulletPosition, self.angle))
 
 	def explode(self):
+		sound.play("explosion")
 		self.timeout = randrange(40, 140)
 
 	def update(self, canvas):
