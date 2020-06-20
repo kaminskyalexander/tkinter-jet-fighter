@@ -124,6 +124,7 @@ class Splash:
 inputs = InputListener(root)
 splash = Splash()
 game = None
+sound.play("music1")
 
 def update():
 	global game, splash
@@ -133,6 +134,8 @@ def update():
 	if response != None:
 		# Start game with Player vs Player
 		if response == 0:
+			sound.stop("music1")
+			sound.play("music0")
 			splash = None
 			game = Game()
 		else:

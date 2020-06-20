@@ -1,5 +1,6 @@
 import tkinter as tk
 import time
+from sound import SoundManager
 
 root = tk.Tk()
 width = 800
@@ -14,6 +15,18 @@ canvas = tk.Canvas(
     highlightthickness = 0
 )
 canvas.pack(fill = "both", expand = True)
+
+sound = SoundManager({
+	"beep": "assets/beep.wav",
+	"explosion": "assets/explosion.wav",
+	"explosionDecay": "assets/explosion-decay.wav",
+	"explosionHit": "assets/explosion-hit.wav",
+	"music0": "assets/music0.mp3",
+	"music1": "assets/music1.mp3",
+	"shoot0": "assets/shoot0.wav",
+	"shoot1": "assets/shoot1.wav",
+	"spin": "assets/spin.wav"
+})
 
 binds = {
 	# Modifiers .......................
