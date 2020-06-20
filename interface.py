@@ -84,6 +84,28 @@ class InterfaceTitleLogo:
 			image = self.scaledTitle
 		)
 
+class InterfaceMusic:
+
+	def __init__(self, music):
+		self.music = music
+		self.playing = False
+
+	def play(self):
+		self.playing = True
+		self.startTime = time.time()
+		sound.play(self.music)
+
+	def stop(self):
+		self.playing = False
+		sound.stop(self.music)
+
+	def update(self):
+		if self.playing:
+			# If the music is over
+			if (time.time() - self.startTime) > (float(sound.index[self.music]["duration"]) / 1000):
+				sound.play(self.music)
+				self.startTime = time.time()
+
 class InterfaceStartup:
 
 	def __init__(self):
@@ -108,7 +130,6 @@ class InterfaceSplash:
 	def __init__(self, titleLogo):
 		self.tick = 0
 		self.titleLogo = titleLogo
-		sound.play("music1")
 
 	def update(self):
 		self.titleLogo.draw(Vector2(0, -0.25))
@@ -314,7 +335,7 @@ class InterfaceGameSetup:
 					sound.play("beep")
 					self.selectionIndex[0] = (self.selectionIndex[0] + 1) % len(self.colours)
 		else:
-			if self.playerReady[1] or self.player1AI:
+			if self.playerReady[1] or self.player2AI:
 				if not self.playerReady[0]:
 					selection = randrange(0, len(self.colours))
 					while selection == self.selectionIndex[1]:
@@ -338,7 +359,7 @@ class InterfaceGameSetup:
 					sound.play("beep")
 					self.selectionIndex[1] = (self.selectionIndex[1] + 1) % len(self.colours)
 		else:
-			if self.playerReady[0] or self.player2AI:
+			if self.playerReady[0] or self.player1AI:
 				if not self.playerReady[1]:
 					selection = randrange(0, len(self.colours))
 					while selection == self.selectionIndex[0]:
@@ -350,7 +371,6 @@ class InterfaceGameSetup:
 
 		# Start the game
 		if self.timeSinceReady > 120:
-			sound.stop("music1")
 			return 1
 
 		self.tick += 1
@@ -493,8 +513,10 @@ class InterfaceManager:
 	def __init__(self):
 		self.currentInterface = InterfaceStartup()
 		self.titleLogo = InterfaceTitleLogo()
+		self.music = InterfaceMusic("music1")
 
 	def update(self):
+		self.music.update()
 		response = self.currentInterface.update()
 		if response != None:
 
@@ -502,6 +524,7 @@ class InterfaceManager:
 				# Completed startup
 				if response == 0:
 					self.currentInterface = InterfaceSplash(self.titleLogo)
+					self.music.play()
 
 			elif isinstance(self.currentInterface, InterfaceSplash):
 				# User pressed space
@@ -528,6 +551,7 @@ class InterfaceManager:
 					self.currentInterface = InterfaceMainMenu(self.titleLogo)
 				# Game started
 				elif response == 1:
+					self.music.stop()
 					gameSetup = {
 						"player1AI": self.currentInterface.player1AI,
 						"player2AI": self.currentInterface.player2AI,
