@@ -104,8 +104,7 @@ class Player(Entity):
 		Creates an instance of Bullet in front of the player.
 		"""
 		if self.timeout == 0 and self.timeSinceLastShot > self.shootCooldown:
-			sound.play("shoot0")
-			sound.play("shoot1")
+			sound.play("shoot")
 			self.timeSinceLastShot = 0
 			bulletDistance = 0.1
 			bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)

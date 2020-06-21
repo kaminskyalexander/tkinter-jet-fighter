@@ -37,13 +37,9 @@ root.bind("<Configure>", scaleCanvas)
 sound = SoundManager({
 	"beep": "assets/beep.wav",
 	"explosion": "assets/explosion.wav",
-	"explosionDecay": "assets/explosion-decay.wav",
-	"explosionHit": "assets/explosion-hit.wav",
-	"music0": "assets/music0.mp3",
-	"music1": "assets/music1.mp3",
-	"shoot0": "assets/shoot0.wav",
-	"shoot1": "assets/shoot1.wav",
-	"spin": "assets/spin.wav"
+	"music0": "assets/music0.wav",
+	"music1": "assets/music1.wav",
+	"shoot": "assets/shoot.wav"
 })
 
 # Initialize the input manager
