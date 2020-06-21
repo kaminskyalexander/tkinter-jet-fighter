@@ -2,7 +2,7 @@ from setup import *
 from inputs import InputListener
 from vector import Vector2
 from player import Player
-from interface import InterfaceManager, InterfaceStartup
+from interface import InterfaceManager, InterfaceStartup, InterfaceTools
 
 class Game:
 
@@ -53,10 +53,52 @@ class Game:
 						self.player1.score += 1
 						self.player2.explode()
 						bullet.explode()
-		elif self.tick < self.gameDuration + 180:
-			...
-		else:
+
+			# Display the score, flashing it when the game is about to end
+			if (self.tick < self.gameDuration - 20 * 60) or (self.tick // 30 % 2):
+				# Draw layer 1 score
+				canvas.create_text(
+					pixelFromPosition(Vector2(-0.9, -0.9)),
+					text = str(self.player1.score),
+					fill = self.player1.colour,
+					font = ("Fixedsys", InterfaceTools.fontSize(80), ""),
+					anchor = "nw"
+				)
+				# Draw player 2 score
+				canvas.create_text(
+					pixelFromPosition(Vector2(0.9, -0.9)),
+					text = str(self.player2.score),
+					fill = self.player2.colour,
+					font = ("Fixedsys", InterfaceTools.fontSize(80), ""),
+					anchor = "ne"
+				)
+
+		# Stop the music at the end of the game
+		if self.tick == self.gameDuration:
 			sound.stop("music0")
+
+		# End of game
+		if self.tick > self.gameDuration:
+
+			# Beeping every 30 ticks
+			if self.tick % 30 == 0:
+				sound.play("beep")
+
+			# Display the winner
+			if self.player1.score > self.player2.score:
+				gameOverMessage = "Player 1 wins!"
+			elif self.player1.score < self.player2.score:
+				gameOverMessage = "Player 2 wins!"
+			else:
+				gameOverMessage = "Tie!"
+			canvas.create_text(
+				pixelFromPosition(Vector2(0, 0)),
+				text = gameOverMessage,
+				fill = "#ff5",
+				font = ("Fixedsys", InterfaceTools.fontSize(40), "")
+			)
+
+		if self.tick == self.gameDuration + 180:
 			return 0
 		
 		self.tick += 1

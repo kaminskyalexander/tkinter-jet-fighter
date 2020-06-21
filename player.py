@@ -12,6 +12,7 @@ class Player(Entity):
 	def __init__(self, position, angle, computer, colour):
 		self.angle = angle % 360
 		self.computer = computer
+		self.colour = colour
 		self.speed = 0.01
 		self.acceleration = 0.0001
 		self.maximumSpeed = 0.015
@@ -41,7 +42,7 @@ class Player(Entity):
 			Vector2( 0.0004352,  0.0619000), 
 			Vector2( 0.0133332,  0.0127572),
 			Vector2( 0.0526240,  0.0099696),
-			fill = colour
+			fill = self.colour
 		)
 		hitboxes = [
 			Polygon(
@@ -150,11 +151,11 @@ class Player(Entity):
 					self.shoot()
 
 				# Draw current AI target for debugging
-				canvas.create_line(
-					*pixelFromPosition(self.position),
-					*pixelFromPosition(self.position + Vector2(cos(radians(targetAngle)) * 0.5, sin(radians(targetAngle)) * 0.5)),
-					fill = "red"
-				)
+				# canvas.create_line(
+				# 	*pixelFromPosition(self.position),
+				# 	*pixelFromPosition(self.position + Vector2(cos(radians(targetAngle)) * 0.5, sin(radians(targetAngle)) * 0.5)),
+				# 	fill = "red"
+				# )
 
 			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
 			self.position += velocity
