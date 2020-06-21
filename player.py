@@ -1,15 +1,27 @@
-from math import cos, sin, atan2, radians, degrees, sqrt, inf
+from math import atan2, cos, degrees, inf, radians, sin, sqrt
 from random import randrange
 
+from bullet import Bullet
+from entity import Entity
+from polygon import Polygon
 from setup import *
 from vector import Vector2
-from entity import Entity 
-from polygon import Polygon
-from bullet import Bullet
 
 class Player(Entity):
+	"""
+	Entity with controls.
+	"""
 
 	def __init__(self, position, angle, computer, colour):
+		"""
+		Creates a player.
+
+		Arguments:
+			position (Vector2): The starting position.
+			angle (int): The starting angle (in degrees).
+			computer (bool): Whether the player is controlled by a human (False) or an AI (True).
+			colour (str): Tkinter format color.
+		"""
 		self.angle = angle % 360
 		self.computer = computer
 		self.colour = colour
@@ -23,6 +35,7 @@ class Player(Entity):
 		self.score = 0
 		self.shootCooldown = 60
 		self.timeSinceLastShot = 0
+		# The vertices of the displayed shape
 		shape = Polygon(
 			Vector2( 0.0637760,  0.0000000),
 			Vector2( 0.0526240, -0.0099696), 
@@ -44,6 +57,7 @@ class Player(Entity):
 			Vector2( 0.0526240,  0.0099696),
 			fill = self.colour
 		)
+		# Hitboxes supplied to entity
 		hitboxes = [
 			Polygon(
 				Vector2(-0.015, -0.075),
@@ -61,10 +75,22 @@ class Player(Entity):
 		super().__init__(position, shape, hitboxes)
 
 	def adjustSpeed(self, speed):
+		"""
+		Adjusts the speed of the player.
+		
+		Arguments:
+			speed (float): How much to increment the speed.
+		"""
 		if self.timeout == 0:
 			self.speed = max(self.minimumSpeed, min(self.maximumSpeed, self.speed + speed))
 
 	def adjustAngle(self, angle):
+		"""
+		Adjust the angle of the player.
+
+		Arguments:
+			angle (float): How much to increment the angle.
+		"""
 		if self.timeout == 0:
 			self.angle = (self.angle + angle) % 360
 
@@ -74,6 +100,9 @@ class Player(Entity):
 	def steerRight(self): self.adjustAngle(self.steeringRate)
 
 	def shoot(self):
+		"""
+		Creates an instance of Bullet in front of the player.
+		"""
 		if self.timeout == 0 and self.timeSinceLastShot > self.shootCooldown:
 			sound.play("shoot0")
 			sound.play("shoot1")
@@ -83,10 +112,24 @@ class Player(Entity):
 			self.bullets.append(Bullet(self.position + bulletPosition, self.angle))
 
 	def explode(self):
+		"""
+		Explodes the player and sets a random cooldown duration.
+		"""
 		sound.play("explosion")
 		self.timeout = randrange(40, 140)
 
 	def getSteeringDirection(self, angle):
+		"""
+		Determines which way is fastest to turn to get to a specific angle.
+
+		Arguments:
+			angle (float): The desired angle to turn to.
+
+		Example:
+			>>> self.getSteeringDirection(90)
+			"left"
+		"""
+		
 		if self.angle < angle:
 			if abs(self.angle - angle) < 180:
 				return "right"
@@ -98,18 +141,21 @@ class Player(Entity):
 		return ""
 
 	def update(self, canvas, enemy):
-
+		"""
+		This function should be called every frame.
+		It transforms, draws and can control the player.
+		"""
 		if self.timeout > 0:
+			# Spin the player when on timeout
 			self.angle += 4
 			self.transform(self.position, self.angle)
+			# Flash the player every 4 ticks
 			if self.timeout // 4 % 2 == 0:
 				self.polygon.draw(canvas)
 			self.timeout -= 1
 		else:
-
 			# If the player has AI enabled
 			if self.computer:
-
 				smallestDistanceFromBullet = inf
 				nearestBullet = None
 				
@@ -167,13 +213,11 @@ class Player(Entity):
 
 			self.timeSinceLastShot += 1
 
-		# draw hitboxes
+		# Draw hitboxes for debugging
 		# for hitbox in self.hitboxes:
 		# 	hitbox.drawWireframe(canvas, "white")
 
-		# # draw boundingbox
+		# Draw boundingbox for debugging
 		# bbox = self.polygon.boundingBox
 		# Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
-
-
 

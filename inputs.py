@@ -1,44 +1,35 @@
-# Tkinter Input Listener
-
-# Initializing .................................................................
-# Start the input listener by initializing this class. The root argument must be
-# an instance of Tkinter's Tk() class.
-
-# Refreshing Inputs ............................................................
-# To refresh the inputs dictionary, the refresh() method must be called every
-# main loop. This should be called once before checking for input states to
-# minimize input lag/delay.
-
-# Input Format .................................................................
-# The inputs dictionary stores values in the following format:
-# Keyboard presses:     (keycode, state)
-# Mouse button presses: (button, state)
-# Mouse motion:         (x, y)
-# * A keycode is a numerical value unique for every key. A good reference for
-#   finding a keycode for a certain key is the website https://keycode.info.
-# * Mouse button corresponds to a numerical value of a certain mouse button
-#   (left click is 1, middle click is 2, right click is 3).
-# * Mouse motion is a coordinate with the origin at the top left of the window.
-# * Valid states are: "trigger", "press", "release" and "*" (wildcard).
-
-# Retrieving Keyboard and Mouse Button Presses..................................
-# A list of tuples is returned via the properties self.keys and self.buttons.
-# Each tuple follows the formats specified in the input format section.
-
-# Retrieving Mouse Motion.......................................................
-# Use the self.motion property to get a (x, y) tuple of the mouse position.
-
-# Verifying if a Keyboard or Mouse Button is Pressed ...........................
-# You can check if a key or mouse button is pressed with the keys() and
-# buttons() methods. Both functions take two arguments corresponding to the
-# format specified in the input format section. By default, state is set to
-# wildcard. The functions returns the key if it matches the arguments; it
-# otherwise returns None.
-
-
 class InputListener:
+	"""
+	Tkinter Input Listener.
+	Uses Tkinter's built in event system.
+
+	Refreshing:
+		To refresh the inputs dictionary, the refresh() method must be called every
+		main loop. This should be called once before checking for input states to
+		minimize input lag/delay.
+
+	Retrieving Keyboard and Mouse Button Presses:
+		A list of tuples is returned via the properties self.keys and self.buttons.
+		Each tuple follows the formats specified in the input format section.
+
+	Retrieving Mouse Motion:
+		Use the self.motion property to get a (x, y) tuple of the mouse position.
+
+	Verifying if a Keyboard or Mouse Button is Pressed:
+		You can check if a key or mouse button is pressed with the key() and
+		button() methods. Both functions take two arguments corresponding to the
+		format specified in the input format section. By default, state is set to
+		wildcard. The functions returns the key if it matches the arguments; it
+		otherwise returns None.
+	"""
 
 	def __init__(self, root):
+		"""
+		Intitializes the listener and binds events.
+
+		Arguments:
+			root (tk.Tk): Must be an instance of the Tkinter main process.
+		"""
 		self.listening = True
 		self.reset()
 
@@ -51,6 +42,12 @@ class InputListener:
 		root.bind("<FocusOut>",      lambda event: self.focus(event))
 
 	def focus(self, event):
+		"""
+		Prevents inputs from being detected when the window is not selected.
+
+		Arguments:
+			event (tk.Event): Event class created from Tkinter bindings.
+		"""
 		# Focus In
 		if event.type == "9":
 			self.reset()
@@ -61,6 +58,10 @@ class InputListener:
 			self.listening = False
 			
 	def reset(self):
+		"""
+		Clears all queued and saved inputs.
+		Resets the inputs dictionary to the original state.
+		"""
 		self.inputs = {"keys": [], "buttons": [], "motion": (0, 0)}
 		self.queue = []
 
@@ -72,6 +73,14 @@ class InputListener:
 	def motion(self): return self.inputs["motion"]
 
 	def key(self, keycode, state = "*"):
+		"""
+		Detects if a key matches the supplied keycode and state.
+
+		Arguments:
+			keycode (int): Number representing a key value. A good reference for
+			finding a keycode for a certain key is the website https://keycode.info.
+			state (str): Valid states are: "trigger", "press", "release" and "*" (wildcard).
+		"""
 		if state == "*":
 			keycodes = [i[0] for i in self.keys]
 			if keycode in keycodes:
@@ -81,6 +90,14 @@ class InputListener:
 				return (keycode, state)
 
 	def button(self, button, state = "*"):
+		"""
+		Detects if a key matches the supplied keycode and state.
+
+		Arguments:
+			keycode (int): Number representing a mouse button. 
+			(1 = Left Click, 2 = Middle Click, 3 = Right Click)
+			state (str): Valid states are: "trigger", "press", "release" and "*" (wildcard).
+		"""
 		if state == "*":
 			buttons = [i[0] for i in self.buttons]
 			if button in buttons:
@@ -90,6 +107,10 @@ class InputListener:
 				return (button, state)
 
 	def refresh(self):
+		"""
+		Refreshes the inputs dictionary with the latest events.
+		Should be called every frame before checking inputs.
+		"""
 
 		if self.listening:
 

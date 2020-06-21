@@ -1,6 +1,10 @@
 from math import sqrt
 
 class Vector2:
+	"""
+	Two dimensional vector.
+	Supports adding, subtracting, multiplying, dividing, comparisons, etc.
+	"""
 
 	def __init__(self, x, y):
 		self.x = x
@@ -8,6 +12,9 @@ class Vector2:
 
 	@property
 	def normalized(self):
+		"""
+		Normalizes the vector (sets it to a length of 1)
+		"""
 		length = sqrt(self.x**2 + self.y**2)
 		if length == 0: return self
 		else: return self / length
@@ -17,6 +24,9 @@ class Vector2:
 
 	@staticmethod
 	def dot(vector1, vector2):
+		"""
+		Finds the dot product of two vectors.
+		"""
 		return round(sum(vector1 * vector2), 5)
 
 	def __add__(self, other):

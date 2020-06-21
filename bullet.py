@@ -1,13 +1,23 @@
-from polygon import Polygon
-from vector import Vector2
-from entity import Entity
-
-from math import radians, sin, cos
+from math import cos, radians, sin
 from random import randrange
 
+from entity import Entity
+from polygon import Polygon
+from vector import Vector2
+
 class Bullet(Entity):
+	"""
+	Stores information relevant to in-game bullets.
+	"""
 
 	def __init__(self, position, angle):
+		"""
+		Creates a bullet.
+
+		Arguments:
+			position (Vector2): Where the bullet should be located upon creation.
+			angle (Vector2): The direction the bullet should travel.
+		"""
 		self.angle = angle
 		self.speed = 0.02
 		self.velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
@@ -15,6 +25,7 @@ class Bullet(Entity):
 		self.decay = 40
 		self.exploded = False
 		self.explosionDuration = 30
+		# The vertices of the displayed shape
 		shape = Polygon(
 			Vector2(-0.01, -0.01),
 			Vector2(0.01, -0.01), 
@@ -22,6 +33,7 @@ class Bullet(Entity):
 			Vector2(-0.01, 0.01),
 			fill = "#ff5"
 		)
+		# The vertices shape created upon explosion
 		self.explosionShape = Polygon(
 			Vector2( .000000,  .100000),
 			Vector2( .018588,  .044876), 
@@ -47,12 +59,17 @@ class Bullet(Entity):
 		self.exploded = True
 
 	def update(self, canvas):
-
+		"""
+		This function should be called every frame.
+		It transforms and draws the bullet.
+		"""
 		if self.exploded:
+			# Draw the explosion if the bullet has exploded
 			self.explosionShape.transform(self.position, 0)
 			self.explosionShape.draw(canvas)
 			self.explosionDuration -= 1
 		else:
+			# Move the bullet
 			self.position += self.velocity
 			self.screenWrap()
 			self.polygon.transform(self.position, 0)

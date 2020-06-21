@@ -1,6 +1,7 @@
+from random import randrange
+
 from setup import *
 from vector import Vector2
-from random import randrange
 
 class InterfaceTools:
 	"""
@@ -72,6 +73,9 @@ class InterfaceTools:
 		canvas.tag_raise(textObject)
 
 class InterfaceTitleLogo:
+	"""
+	Class used across sevel interfaces to draw the title logo.
+	"""
 
 	def __init__(self):
 		self.title = tk.PhotoImage(file = "assets/title.png")
@@ -85,6 +89,9 @@ class InterfaceTitleLogo:
 		)
 
 class InterfaceMusic:
+	"""
+	Controls the music and ensures it is looped.
+	"""
 
 	def __init__(self, music):
 		self.music = music
@@ -504,6 +511,9 @@ class InterfaceCredits:
 		self.tick += 1
 
 class InterfaceEmpty:
+	"""
+	Empty interface used while the game is running.
+	"""
 
 	def __init__(self):
 		pass
@@ -512,6 +522,11 @@ class InterfaceEmpty:
 		pass
 
 class InterfaceManager:
+	"""
+	Controls the state of the user interface and switches between states when necessary.
+	Each state must have an __init__ method and an update method.
+	The update method is called every frame and returns an integer to signal a change of state.
+	"""
 
 	def __init__(self):
 		self.currentInterface = InterfaceStartup()

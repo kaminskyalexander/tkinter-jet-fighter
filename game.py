@@ -1,12 +1,25 @@
-from setup import *
 from inputs import InputListener
-from vector import Vector2
-from player import Player
 from interface import InterfaceManager, InterfaceStartup, InterfaceTools
+from player import Player
+from setup import *
+from vector import Vector2
 
 class Game:
+	"""
+	The container for the game.
+	Stores the players, responds to events in the game and controls inputs.
+	"""
 
 	def __init__(self, player1AI, player2AI, colour1, colour2):
+		"""
+		Starts the game.
+
+		Arguments:
+			player1AI (bool): If Player 1 should be controlled by AI.
+			player2AI (bool): If Player 2 should be controlled by AI.
+			colour1 (str): Tkinter format colour applied on Player 1.
+			colour2 (str): Tkinter format colour applied on Player 2.
+		"""
 		self.tick = 0
 		self.player1 = Player(Vector2(-0.5, -0.5), 90, player1AI, colour1)
 		self.player2 = Player(Vector2(0.5, 0.5), -90, player2AI, colour2)
@@ -14,7 +27,13 @@ class Game:
 		sound.play("music0")
 
 	def update(self):
+		"""
+		Updates all events in the game.
+		Should be called every frame.
+		"""
+		# Game is not over
 		if self.tick < self.gameDuration:
+			# Register keypresses and act accordingly
 			if inputs.key(*binds["p1-accelerate"]): self.player1.accelerate()
 			if inputs.key(*binds["p1-decelerate"]): self.player1.decelerate()
 			if inputs.key(*binds["p1-left"]):       self.player1.steerLeft()
@@ -26,12 +45,15 @@ class Game:
 			if inputs.key(*binds["p2-right"]):      self.player2.steerRight()
 			if inputs.key(*binds["p2-shoot"]):      self.player2.shoot()
 
+			# Update the players
 			self.player1.update(canvas, self.player2)
 			self.player2.update(canvas, self.player1)
 
+			# Loop over all bullets in the game
 			for bullet in self.player1.bullets + self.player2.bullets:
 				bullet.update(canvas)
-					
+				
+				# Remove bullets once they have finished exploding
 				if bullet.explosionDuration == 0:
 					if bullet in self.player1.bullets: self.player1.bullets.remove(bullet)
 					if bullet in self.player2.bullets: self.player2.bullets.remove(bullet)
@@ -39,16 +61,19 @@ class Game:
 				
 				if not bullet.exploded:
 
+					# Destroy the bullet after the defined period of time
 					if bullet.lifespan == -bullet.decay:
 						if bullet in self.player1.bullets: self.player1.bullets.remove(bullet)
 						if bullet in self.player2.bullets: self.player2.bullets.remove(bullet)
 						continue
 
+					# Check if the bullet has collided with Player 1
 					if bullet.detectCollision(self.player1) and self.player1.timeout == 0:
 						self.player2.score += 1
 						self.player1.explode()
 						bullet.explode()
 
+					# Check if the bullet has collided with Player 2
 					if bullet.detectCollision(self.player2) and self.player2.timeout == 0:
 						self.player1.score += 1
 						self.player2.explode()
@@ -98,6 +123,7 @@ class Game:
 				font = ("Fixedsys", InterfaceTools.fontSize(40), "")
 			)
 
+		# Exit the game upon completion and return to title screen
 		if self.tick == self.gameDuration + 180:
 			return 0
 		
@@ -107,13 +133,25 @@ ui = InterfaceManager()
 game = None
 
 def update():
+	"""
+	The main loop of the process.
+	Called every frame.
+	"""
 	global game
+	# Clear all objects from the screen
 	canvas.delete("all")
+
+	# Update input dictionary
 	inputs.refresh()
+
+	# Detect returns from the interface
 	response = ui.update()
 	if response != None:
+		# Start the game
 		game = Game(**response)
+
 	if game != None:
+		# Return to title screen after game completion
 		if game.update() == 0:
 			game = None
 			ui.currentInterface = InterfaceStartup()

@@ -1,28 +1,63 @@
+from math import cos, radians, sin
+
 from setup import *
-from math import sin, cos, radians
 from vector import Vector2
 
 class Polygon:
+	"""
+	Base class for most shapes in the game.
+	Contains drawing and transforming functionality.
+	"""
 
 	def __init__(self, *vertices, **properties):
+		"""
+		Sets the properties of the polygon.
+
+		Arguments:
+			*vertices (Vector2): All vertices of the polygon.
+			**properties: Properties passed on to Tkinter.
+		"""
 		self.vertices = vertices
 		self.transformedVertices = vertices[:]
 		self.properties = properties
 
 	def draw(self, canvas):
+		"""
+		Draws the polygon on the supplied canvas.
+
+		Arguments:
+			canvas (tk.Canvas): Canvas on which to draw.
+		"""
 		canvas.create_polygon([pixelFromPosition(vertex) for vertex in self.transformedVertices], **self.properties)
 
-	def drawWireframe(self, canvas, color):
-		canvas.create_polygon([pixelFromPosition(vertex) for vertex in self.transformedVertices], fill = "", outline = color)
+	def drawWireframe(self, canvas, colour):
+		"""
+		Draws the polygon without fill.
+		
+		Arguments:
+			canvas (tk.Canvas): Canvas on which to draw.
+			colour (string): Tkinter format colour of the outline.
+		"""
+		canvas.create_polygon([pixelFromPosition(vertex) for vertex in self.transformedVertices], fill = "", outline = colour)
 
 	def transform(self, translation, rotationAngle):
+		"""
+		Transforms the shape into the correct position and rotation on the screen.
+		
+		Arguments:
+			translation (Vector2): Position where to draw the polygon.
+			rotationAngle (float): Angle (in degrees) to which the polygon should be rotated.
+		"""
+		# Convert to radians
 		rotationAngle = radians(rotationAngle)
 
+		# Rotation matrix
 		matrix = [
 			[cos(rotationAngle), -sin(rotationAngle)],
 			[sin(rotationAngle),  cos(rotationAngle)]
 		]
 
+		# Apply the translation and rotation on each vertex of the polygon
 		self.transformedVertices = []
 		for vertex in self.vertices:
 			newPoint = Vector2(
@@ -34,6 +69,12 @@ class Polygon:
 
 	@property
 	def uniqueNormals(self):
+		"""
+		Finds all unique edge normals.
+
+		Returns:
+			list: All unique normals.
+		"""
 		axes = []
 		for i in range(len(self.transformedVertices)):
 			# Get the current vertex
@@ -52,6 +93,13 @@ class Polygon:
 
 	@property
 	def boundingBox(self):
+		"""
+		Returns a 2D tuple representing an axis aligned box which contains the polygon.
+
+		Example:
+			>>> self.boundingBox
+			((-1, -1), (1, 1))
+		"""
 		minX = self.transformedVertices[0].x
 		minY = self.transformedVertices[0].y
 		maxX = self.transformedVertices[0].x

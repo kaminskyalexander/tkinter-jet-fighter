@@ -1,9 +1,11 @@
-import tkinter as tk
 import time
-from sound import SoundManager
+import tkinter as tk
+
 from inputs import InputListener
+from sound import SoundManager
 from vector import Vector2
 
+# Initialize Tkinter
 root = tk.Tk()
 root.config(bg = "#000")
 root.minsize(400, 400)
@@ -12,6 +14,7 @@ width = 800
 height = 800
 fps = 60
 
+# Create the canvas
 canvas = tk.Canvas(
     root,
     width = width,
@@ -27,6 +30,7 @@ def scaleCanvas(event):
 	canvas.configure(width = size, height = size)
 root.bind("<Configure>", scaleCanvas)
 
+# Initialize all sounds
 sound = SoundManager({
 	"beep": "assets/beep.wav",
 	"explosion": "assets/explosion.wav",
@@ -39,8 +43,10 @@ sound = SoundManager({
 	"spin": "assets/spin.wav"
 })
 
+# Initialize the input manager
 inputs = InputListener(root)
 
+# Dictionary of all keybindings
 binds = {
 	# Modifiers .......................
 	"shift": (16, "press"),
@@ -87,6 +93,10 @@ binds = {
 root.focus_force()
 
 def loop(function):
+	"""
+	Wrapper function for the main update.
+	Calls the supplied function every frame.
+	"""
 	# Get time when function call begins
 	startTime = time.time()
 	# Call the function
@@ -101,6 +111,15 @@ def loop(function):
 	canvas.after(delay, lambda: loop(function))
 
 def pixelFromPosition(position):
+	"""
+	Converts a position into a pixel coordinate.
+
+	Arguments:
+		position (Vector2): The position to convert.
+
+	Returns:
+		tuple:float: Pixel coordinates.
+	"""
 	# Get the size of the window
 	width = canvas.winfo_width()
 	height = canvas.winfo_height()
@@ -111,6 +130,15 @@ def pixelFromPosition(position):
 	return x, y
 	
 def positionFromPixel(x, y):
+	"""
+	Converts a pixel coordinate into a position.
+
+	Arguments:
+		tuple:float: The pixel coordinate to convert.
+
+	Returns:
+		Vector2: The position.
+	"""
 	# Get the size of the window
 	width = canvas.winfo_width()
 	height = canvas.winfo_height()

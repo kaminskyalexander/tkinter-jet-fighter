@@ -16,11 +16,22 @@ def winCommand(*command):
     return buf.value
 
 class SoundManager:
+    """
+    Controls sounds. 
+    IMPORTANT: This tool only works on Windows.
+    """
 
     def __init__(self, sounds):
+        """
+        Initialize the sound manager.
+
+        Arguments:
+            sounds (dict): List of sounds formatted name:filepath
+        """
         self.sounds = sounds
         self.index = {}
 
+        # Opens each sound and stores it in the index
         for sound in self.sounds:
             alias = f"sound_{sound}"
             winCommand("open \"" + self.sounds[sound] + "\" alias", alias)
@@ -33,6 +44,12 @@ class SoundManager:
             }
 
     def play(self, sound):
+        """
+        Plays a sound.
+
+        Arguments:
+            sound (str): The sound index to play.
+        """
         try:
             alias = self.index[sound]["alias"]
             duration = self.index[sound]["duration"]
@@ -41,12 +58,19 @@ class SoundManager:
             raise Exception("Sound unable to play. (Incorrect index name?)")
 
     def stop(self, sound):
+        """
+        Stops a sound.
+
+        Arguments:
+            sound (str): The sound index to stop.
+        """
         try:
             alias = self.index[sound]["alias"]
             winCommand("stop", alias)
         except:
             raise Exception("Sound unable to stop. (Incorrect index name?)")
 
+# Test the program.
 if __name__ == "__main__":
     import time
     sound = SoundManager(sounds = {"beep": "assets/beep.wav"})
