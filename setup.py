@@ -10,6 +10,8 @@ root = tk.Tk()
 root.config(bg = "#000")
 root.minsize(400, 400)
 root.title("Jet Fighter")
+iconPhotoImage = tk.PhotoImage(file = "assets/icon.png")
+root.iconphoto(False, iconPhotoImage)
 width = 800
 height = 800
 fps = 60
