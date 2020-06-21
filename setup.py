@@ -6,15 +6,16 @@ from sound import SoundManager
 from vector import Vector2
 
 # Initialize Tkinter
+width = 800
+height = 800
+fps = 60
+fullscreen = False
 root = tk.Tk()
-root.config(bg = "#000")
+root.config(bg = "#000", width = width, height = height)
 root.minsize(400, 400)
 root.title("Jet Fighter")
 iconPhotoImage = tk.PhotoImage(file = "assets/icon.png")
 root.iconphoto(False, iconPhotoImage)
-width = 800
-height = 800
-fps = 60
 
 # Create the canvas
 canvas = tk.Canvas(

@@ -137,12 +137,17 @@ def update():
 	The main loop of the process.
 	Called every frame.
 	"""
-	global game
+	global game, fullscreen
 	# Clear all objects from the screen
 	canvas.delete("all")
 
 	# Update input dictionary
 	inputs.refresh()
+
+	# Fullscreen
+	if inputs.key(*binds["f11"]):
+		fullscreen = not fullscreen
+		root.attributes("-fullscreen", fullscreen)
 
 	# Detect returns from the interface
 	response = ui.update()
