@@ -1,4 +1,4 @@
-from math import cos, sin, radians
+from math import cos, sin, atan2, radians, degrees, sqrt, inf
 from random import randrange
 
 from setup import *
@@ -9,8 +9,9 @@ from bullet import Bullet
 
 class Player(Entity):
 
-	def __init__(self, position, angle, colour):
-		self.angle = angle
+	def __init__(self, position, angle, computer, colour):
+		self.angle = angle % 360
+		self.computer = computer
 		self.speed = 0.01
 		self.acceleration = 0.0001
 		self.maximumSpeed = 0.015
@@ -64,7 +65,7 @@ class Player(Entity):
 
 	def adjustAngle(self, angle):
 		if self.timeout == 0:
-			self.angle += angle
+			self.angle = (self.angle + angle) % 360
 
 	def accelerate(self): self.adjustSpeed(self.acceleration)
 	def decelerate(self): self.adjustSpeed(-self.acceleration)
@@ -84,7 +85,7 @@ class Player(Entity):
 		sound.play("explosion")
 		self.timeout = randrange(40, 140)
 
-	def update(self, canvas):
+	def update(self, canvas, enemy):
 
 		if self.timeout > 0:
 			self.angle += 4
@@ -93,6 +94,69 @@ class Player(Entity):
 				self.polygon.draw(canvas)
 			self.timeout -= 1
 		else:
+
+			if self.computer:
+				bulletNearby = False
+				smallestDistance = inf
+				nearestBullet = None
+				
+
+				distanceFromPlayer = sqrt((self.position.x - enemy.position.x)**2 + (self.position.y - enemy.position.y)**2)
+				if distanceFromPlayer < 0.5:
+					self.accelerate()
+				elif distanceFromPlayer > 1:
+					self.decelerate()
+				
+				for bullet in self.bullets + enemy.bullets:
+					distanceToBullet = sqrt((self.position.x - bullet.position.x)**2 + (self.position.y - bullet.position.y)**2)
+					if distanceToBullet < smallestDistance:
+						smallestDistance = distanceToBullet
+						nearestBullet = bullet
+				
+				targetDirection = enemy.position - self.position
+				angle = degrees(atan2(targetDirection.y, targetDirection.x))
+				steeringDirection = ""
+
+				if angle < 0: angle += 360
+				if abs(angle - self.angle) > 10:
+					if self.angle < angle:
+						if abs(self.angle - angle) < 180:
+							steeringDirection = "right"
+						else:
+							steeringDirection = "left"
+					else:
+						if abs(self.angle - angle) < 180:
+							steeringDirection = "left"
+						else:
+							steeringDirection = "right"
+					
+				if smallestDistance < 0.5:
+					angle = (90 if steeringDirection == "right" else -90) + degrees(atan2(nearestBullet.velocity.y, nearestBullet.velocity.x))
+					if angle < 0: angle += 360
+					if abs(angle - self.angle) > 10:
+						if self.angle < angle:
+							if abs(self.angle - angle) < 180:
+								self.steerRight()
+							else:
+								self.steerLeft()
+						else:
+							if abs(self.angle - angle) < 180:
+								self.steerLeft()
+							else:
+								self.steerRight()
+				else:	
+					if steeringDirection == "left": self.steerLeft()
+					elif steeringDirection == "right": self.steerRight()
+					else: self.shoot()
+
+				# canvas.create_line(
+				# 	*pixelFromPosition(self.position),
+				# 	*pixelFromPosition(self.position + Vector2(cos(radians(angle)) * 0.5, sin(radians(angle)) * 0.5)),
+				# 	fill = "red"
+				# )
+			
+
+
 			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
 			self.position += velocity
 

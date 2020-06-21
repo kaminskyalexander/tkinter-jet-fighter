@@ -218,6 +218,9 @@ class InterfaceMainMenu:
 			if inputs.key(*binds["ui-select"]): 
 				sound.play("beep")
 				return self.selectionIndex
+			if inputs.key(*binds["f1"]):
+				if "AI vs. AI" not in self.selections:
+					self.selections.append("AI vs. AI")
 
 		self.tick += 1
 
@@ -544,6 +547,9 @@ class InterfaceManager:
 				# User selected "Credits"
 				elif response == 3:
 					self.currentInterface = InterfaceCredits()
+				# User selected "AI vs. AI"
+				elif response == 4:
+					self.currentInterface = InterfaceGameSetup(player1AI = True, player2AI = True)
 
 			elif isinstance(self.currentInterface, InterfaceGameSetup):
 				# User pressed escape
