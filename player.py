@@ -175,7 +175,7 @@ class Player(Entity):
 				# Avoid bullets when they are nearby
 				if smallestDistanceFromBullet < 0.5:
 					# Steer perpendicular to the bullet path
-					targetAngle = degrees(atan2(nearestBullet.velocity.y, nearestBullet.velocity.x))
+					targetAngle = nearestBullet.angle
 					# Prefer turning in the direction of the enemy
 					targetAngle += 90 if steeringDirection == "right" else -90
 					direction = self.getSteeringDirection(targetAngle)
