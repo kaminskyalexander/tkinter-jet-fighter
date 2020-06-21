@@ -85,6 +85,17 @@ class Player(Entity):
 		sound.play("explosion")
 		self.timeout = randrange(40, 140)
 
+	def getSteeringDirection(self, angle):
+		if self.angle < angle:
+			if abs(self.angle - angle) < 180:
+				return "right"
+			return "left"
+		else:
+			if abs(self.angle - angle) < 180:
+				return "left"
+			return "right"
+		return ""
+
 	def update(self, canvas, enemy):
 
 		if self.timeout > 0:
@@ -95,67 +106,55 @@ class Player(Entity):
 			self.timeout -= 1
 		else:
 
+			# If the player has AI enabled
 			if self.computer:
-				bulletNearby = False
-				smallestDistance = inf
+
+				smallestDistanceFromBullet = inf
 				nearestBullet = None
 				
+				# Finds the nearest bullet
+				for bullet in self.bullets + enemy.bullets:
+					distanceToBullet = sqrt((self.position.x - bullet.position.x)**2 + (self.position.y - bullet.position.y)**2)
+					if distanceToBullet < smallestDistanceFromBullet:
+						smallestDistanceFromBullet = distanceToBullet
+						nearestBullet = bullet
+				
+				# Find optimal path (direction to steer) to player
+				directionToEnemy = enemy.position - self.position
+				targetAngle = degrees(atan2(directionToEnemy.y, directionToEnemy.x)) % 360
+				angleToPlayer = targetAngle
+				steeringDirection = self.getSteeringDirection(targetAngle)
+					
+				# Avoid bullets when they are nearby
+				if smallestDistanceFromBullet < 0.5:
+					# Steer perpendicular to the bullet path
+					targetAngle = degrees(atan2(nearestBullet.velocity.y, nearestBullet.velocity.x))
+					# Prefer turning in the direction of the enemy
+					targetAngle += 90 if steeringDirection == "right" else -90
+					direction = self.getSteeringDirection(targetAngle)
 
+				# Steer towards the target angle
+				if abs(targetAngle - self.angle) > 10: 
+					if steeringDirection == "left": self.steerLeft()
+					elif steeringDirection == "right": self.steerRight()
+				
+				# Accelerate/decelerate depending on how far the enemy is
 				distanceFromPlayer = sqrt((self.position.x - enemy.position.x)**2 + (self.position.y - enemy.position.y)**2)
 				if distanceFromPlayer < 0.5:
 					self.accelerate()
 				elif distanceFromPlayer > 1:
 					self.decelerate()
-				
-				for bullet in self.bullets + enemy.bullets:
-					distanceToBullet = sqrt((self.position.x - bullet.position.x)**2 + (self.position.y - bullet.position.y)**2)
-					if distanceToBullet < smallestDistance:
-						smallestDistance = distanceToBullet
-						nearestBullet = bullet
-				
-				targetDirection = enemy.position - self.position
-				angle = degrees(atan2(targetDirection.y, targetDirection.x))
-				steeringDirection = ""
-
-				if angle < 0: angle += 360
-				if abs(angle - self.angle) > 10:
-					if self.angle < angle:
-						if abs(self.angle - angle) < 180:
-							steeringDirection = "right"
-						else:
-							steeringDirection = "left"
-					else:
-						if abs(self.angle - angle) < 180:
-							steeringDirection = "left"
-						else:
-							steeringDirection = "right"
 					
-				if smallestDistance < 0.5:
-					angle = (90 if steeringDirection == "right" else -90) + degrees(atan2(nearestBullet.velocity.y, nearestBullet.velocity.x))
-					if angle < 0: angle += 360
-					if abs(angle - self.angle) > 10:
-						if self.angle < angle:
-							if abs(self.angle - angle) < 180:
-								self.steerRight()
-							else:
-								self.steerLeft()
-						else:
-							if abs(self.angle - angle) < 180:
-								self.steerLeft()
-							else:
-								self.steerRight()
-				else:	
-					if steeringDirection == "left": self.steerLeft()
-					elif steeringDirection == "right": self.steerRight()
-					else: self.shoot()
+				# Shoot if pointing towards the enemy
+				if abs(angleToPlayer - self.angle) <= 10:
+					self.shoot()
 
-				# canvas.create_line(
-				# 	*pixelFromPosition(self.position),
-				# 	*pixelFromPosition(self.position + Vector2(cos(radians(angle)) * 0.5, sin(radians(angle)) * 0.5)),
-				# 	fill = "red"
-				# )
-			
-
+				# Draw current AI target for debugging
+				canvas.create_line(
+					*pixelFromPosition(self.position),
+					*pixelFromPosition(self.position + Vector2(cos(radians(targetAngle)) * 0.5, sin(radians(targetAngle)) * 0.5)),
+					fill = "red"
+				)
 
 			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
 			self.position += velocity
