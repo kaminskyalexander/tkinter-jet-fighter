@@ -33,17 +33,19 @@ class Game:
 		"""
 		# Game is not over
 		if self.tick < self.gameDuration:
-			# Register keypresses and act accordingly
-			if inputs.key(*binds["p1-accelerate"]): self.player1.accelerate()
-			if inputs.key(*binds["p1-decelerate"]): self.player1.decelerate()
-			if inputs.key(*binds["p1-left"]):       self.player1.steerLeft()
-			if inputs.key(*binds["p1-right"]):      self.player1.steerRight()
-			if inputs.key(*binds["p1-shoot"]):      self.player1.shoot()
-			if inputs.key(*binds["p2-accelerate"]): self.player2.accelerate()
-			if inputs.key(*binds["p2-decelerate"]): self.player2.decelerate()
-			if inputs.key(*binds["p2-left"]):       self.player2.steerLeft()
-			if inputs.key(*binds["p2-right"]):      self.player2.steerRight()
-			if inputs.key(*binds["p2-shoot"]):      self.player2.shoot()
+			# Register keypresses and act accordingly if the player is not an AI
+			if not self.player1.computer:
+				if inputs.key(*binds["p1-accelerate"]): self.player1.accelerate()
+				if inputs.key(*binds["p1-decelerate"]): self.player1.decelerate()
+				if inputs.key(*binds["p1-left"]):       self.player1.steerLeft()
+				if inputs.key(*binds["p1-right"]):      self.player1.steerRight()
+				if inputs.key(*binds["p1-shoot"]):      self.player1.shoot()
+			if not self.player2.computer:
+				if inputs.key(*binds["p2-accelerate"]): self.player2.accelerate()
+				if inputs.key(*binds["p2-decelerate"]): self.player2.decelerate()
+				if inputs.key(*binds["p2-left"]):       self.player2.steerLeft()
+				if inputs.key(*binds["p2-right"]):      self.player2.steerRight()
+				if inputs.key(*binds["p2-shoot"]):      self.player2.shoot()
 
 			# Update the players
 			self.player1.update(canvas, self.player2)
