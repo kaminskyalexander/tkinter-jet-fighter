@@ -12,7 +12,7 @@ def winCommand(*command):
     if errorCode:
         errorBuffer = c_buffer(255)
         windll.winmm.mciGetErrorStringA(errorCode, errorBuffer, 254)
-        raise Exception(f"Error {str(errorCode)} for command:\n {command.decode()} \n\n {errorBuffer.value.decode()}")
+        #raise Exception(f"Error {str(errorCode)} for command:\n {command.decode()} \n\n {errorBuffer.value.decode()}")
     return buf.value
 
 class SoundManager:
@@ -28,20 +28,23 @@ class SoundManager:
         Arguments:
             sounds (dict): List of sounds formatted name:filepath
         """
-        self.sounds = sounds
-        self.index = {}
+        try:
+            self.sounds = sounds
+            self.index = {}
 
-        # Opens each sound and stores it in the index
-        for sound in self.sounds:
-            alias = f"sound_{sound}"
-            winCommand("open \"" + self.sounds[sound] + "\" alias", alias)
-            winCommand("set", alias, "time format milliseconds")
-            duration = winCommand("status", alias, "length")
+            # Opens each sound and stores it in the index
+            for sound in self.sounds:
+                alias = f"sound_{sound}"
+                winCommand("open \"" + self.sounds[sound] + "\" alias", alias)
+                winCommand("set", alias, "time format milliseconds")
+                duration = winCommand("status", alias, "length")
 
-            self.index[sound] = {
-                "alias": alias,
-                "duration": duration.decode()
-            }
+                self.index[sound] = {
+                    "alias": alias,
+                    "duration": duration.decode()
+                }
+        except:
+            pass
 
     def play(self, sound):
         """
@@ -55,7 +58,7 @@ class SoundManager:
             duration = self.index[sound]["duration"]
             winCommand("play", alias, "from 0 to", duration)
         except:
-            raise Exception("Sound unable to play. (Incorrect index name?)")
+            pass #raise Exception("Sound unable to play. (Incorrect index name?)")
 
     def stop(self, sound):
         """
@@ -68,7 +71,7 @@ class SoundManager:
             alias = self.index[sound]["alias"]
             winCommand("stop", alias)
         except:
-            raise Exception("Sound unable to stop. (Incorrect index name?)")
+            pass #raise Exception("Sound unable to stop. (Incorrect index name?)")
 
 # Test the program.
 if __name__ == "__main__":
