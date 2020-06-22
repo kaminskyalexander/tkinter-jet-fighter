@@ -63,7 +63,7 @@ binds = {
 	"f9": (120, "trigger"),
 	"f10": (121, "trigger"),
 	"f11": (122, "trigger"),
-	"f12": (133, "trigger"),
+	"f12": (123, "trigger"),
 	# Gameplay ........................
 	"p1-accelerate": (87, "press"),
 	"p1-decelerate": (83, "press"),
