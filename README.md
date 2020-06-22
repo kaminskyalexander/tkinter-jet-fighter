@@ -1,6 +1,6 @@
 # Jet Fighter
 Tkinter game built using only the Python Standard Library. Tested with **Python 3.7.3 64-bit** on **Windows 10 Version 1909**.
-To launch the game, run **game.py**.
+To launch the game, run **main.py**.
 
 ## Important:
 Currently, the game only supports sound on Windows. Linux and Mac support may be added later.
