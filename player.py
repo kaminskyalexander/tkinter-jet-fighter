@@ -12,7 +12,7 @@ class Player(Entity):
 	Entity with controls.
 	"""
 
-	def __init__(self, position, angle, computer, colour):
+	def __init__(self, position, angle, computer, colour, training = False):
 		"""
 		Creates a player.
 
@@ -25,6 +25,7 @@ class Player(Entity):
 		self.angle = angle % 360
 		self.computer = computer
 		self.colour = colour
+		self.training = training
 		self.speed = 0.01
 		self.acceleration = 0.0001
 		self.maximumSpeed = 0.015
@@ -104,7 +105,7 @@ class Player(Entity):
 		Creates an instance of Bullet in front of the player.
 		"""
 		if self.timeout == 0 and self.timeSinceLastShot > self.shootCooldown:
-			sound.play("shoot")
+			if not self.training: sound.play("shoot")
 			self.timeSinceLastShot = 0
 			bulletDistance = 0.1
 			bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)
@@ -114,7 +115,7 @@ class Player(Entity):
 		"""
 		Explodes the player and sets a random cooldown duration.
 		"""
-		sound.play("explosion")
+		if not self.training: sound.play("explosion")
 		self.timeout = randrange(40, 140)
 
 	def getSteeringDirection(self, angle):
@@ -139,7 +140,7 @@ class Player(Entity):
 			return "right"
 		return ""
 
-	def update(self, canvas, enemy):
+	def update(self, canvas, enemy, graphics):
 		"""
 		This function should be called every frame.
 		It transforms, draws and can control the player.
@@ -149,7 +150,7 @@ class Player(Entity):
 			self.angle += 4
 			self.transform(self.position, self.angle)
 			# Flash the player every 4 ticks
-			if self.timeout // 4 % 2 == 0:
+			if self.timeout // 4 % 2 == 0 and graphics:
 				self.polygon.draw(canvas)
 			self.timeout -= 1
 		else:
@@ -206,7 +207,9 @@ class Player(Entity):
 			self.position += velocity
 
 			self.transform(self.position, self.angle)
-			self.polygon.draw(canvas)
+
+			if graphics:
+				self.polygon.draw(canvas)
 
 			self.screenWrap()
 

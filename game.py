@@ -9,7 +9,7 @@ class Game:
 	Stores the players, responds to events in the game and controls inputs.
 	"""
 
-	def __init__(self, player1AI, player2AI, colour1, colour2):
+	def __init__(self, player1AI, player2AI, colour1, colour2, training = False, graphics = True):
 		"""
 		Starts the game.
 
@@ -19,11 +19,13 @@ class Game:
 			colour1 (str): Tkinter format colour applied on Player 1.
 			colour2 (str): Tkinter format colour applied on Player 2.
 		"""
+		self.training = training
+		self.graphics = graphics
 		self.tick = 0
-		self.player1 = Player(Vector2(-0.5, -0.5), 90, player1AI, colour1)
-		self.player2 = Player(Vector2(0.5, 0.5), -90, player2AI, colour2)
+		self.player1 = Player(Vector2(-0.5, -0.5), 90, player1AI, colour1, training = self.training)
+		self.player2 = Player(Vector2(0.5, 0.5), -90, player2AI, colour2, training = self.training)
 		self.gameDuration = 2 * 60 * fps
-		sound.play("music0")
+		if not self.training: sound.play("music0")
 
 	def update(self):
 		"""
@@ -47,12 +49,12 @@ class Game:
 				if inputs.key(*binds["p2-shoot"]):      self.player2.shoot()
 
 			# Update the players
-			self.player1.update(canvas, self.player2)
-			self.player2.update(canvas, self.player1)
+			self.player1.update(canvas, self.player2, graphics = self.graphics)
+			self.player2.update(canvas, self.player1, graphics = self.graphics)
 
 			# Loop over all bullets in the game
 			for bullet in self.player1.bullets + self.player2.bullets:
-				bullet.update(canvas)
+				bullet.update(canvas, self.graphics)
 				
 				# Remove bullets once they have finished exploding
 				if bullet.explosionDuration == 0:
@@ -81,7 +83,7 @@ class Game:
 						bullet.explode()
 
 			# Display the score, flashing it when the game is about to end
-			if (self.tick < self.gameDuration - 20 * 60) or (self.tick // 30 % 2):
+			if ((self.tick < self.gameDuration - 20 * 60) or (self.tick // 30 % 2)) and self.graphics:
 				# Draw layer 1 score
 				canvas.create_text(
 					pixelFromPosition(Vector2(-0.9, -0.9)),
@@ -99,12 +101,12 @@ class Game:
 					anchor = "ne"
 				)
 
-		# Stop the music at the end of the game
-		if self.tick == self.gameDuration:
+		# Stop the music at the end of the game (skipped when training)
+		if self.tick == self.gameDuration and not self.training:
 			sound.stop("music0")
 
-		# End of game
-		if self.tick > self.gameDuration:
+		# End of game (skipped when training)
+		if self.tick > self.gameDuration and not self.training:
 
 			# Beeping every 30 ticks
 			if self.tick % 30 == 0:
@@ -125,8 +127,13 @@ class Game:
 			)
 
 		# Exit the game upon completion and return to title screen
-		if self.tick == self.gameDuration + 180:
+		if self.tick == self.gameDuration + 180 and not self.training:
 			return 0
-		
+
+		# Instantly exit the game if training upon completion
+		if self.tick == self.gameDuration and self.training:
+			print(f"P1: {self.player1.score} P2: {self.player2.score}")
+			return 0
+
 		self.tick += 1
 

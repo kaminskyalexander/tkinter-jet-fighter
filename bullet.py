@@ -58,7 +58,7 @@ class Bullet(Entity):
 	def explode(self):
 		self.exploded = True
 
-	def update(self, canvas):
+	def update(self, canvas, graphics):
 		"""
 		This function should be called every frame.
 		It transforms and draws the bullet.
@@ -66,7 +66,7 @@ class Bullet(Entity):
 		if self.exploded:
 			# Draw the explosion if the bullet has exploded
 			self.explosionShape.transform(self.position, 0)
-			self.explosionShape.draw(canvas)
+			if graphics: self.explosionShape.draw(canvas)
 			self.explosionDuration -= 1
 		else:
 			# Move the bullet
@@ -76,9 +76,9 @@ class Bullet(Entity):
 
 			if self.lifespan < 0:
 				# Make bullets flash as they despawn
-				if self.lifespan // 4 % 2 == 0:
+				if self.lifespan // 4 % 2 == 0 and graphics:
 					self.polygon.draw(canvas)
-			else:
+			elif graphics:
 				self.polygon.draw(canvas)
 
 			self.lifespan -= 1
