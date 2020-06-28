@@ -1,9 +1,13 @@
 # Jet Fighter
-Tkinter game built using only the Python Standard Library. Tested with **Python 3.7.3 64-bit** on **Windows 10 Version 1909**.
+Tkinter game built using only the Python Standard Library.
 To launch the game, run **main.py**.
 
 ## Important:
-Currently, the game only supports sound on Windows. Linux and Mac support may be added later.
+This game has only been tested with **Python 3.8.3 64-bit** on **Windows 10 Version 1909**.
+Issues may arise on non-Windows systems.
+### Known Issues:
+* Sound functionality will be ignored on non-Windows systems.
+* Keypresses and binds may not work on macOS (more investigation needed).
 
 ## Screenshots:
 ![Title Screen](https://i.ibb.co/FKnpqBL/titlescreen.png)
@@ -23,6 +27,8 @@ Left Arrow  | Turn Left (Player 2)
 Right Arrow | Turn Right (Player 2)
 Enter       | Shoot (Player 2)
 F1          | Secret AI vs. AI option in main menu
+F2          | Draw hitbox information in game
+F3          | Draw AI target information in game
 F11         | Toggle fullscreen
 
 ## Credits:

@@ -36,6 +36,8 @@ class Player(Entity):
 		self.score = 0
 		self.shootCooldown = 60
 		self.timeSinceLastShot = 0
+		self.drawHitboxes = False
+		self.drawAITarget = False
 		# The vertices of the displayed shape
 		shape = Polygon(
 			Vector2( 0.0637760,  0.0000000),
@@ -197,11 +199,12 @@ class Player(Entity):
 					self.shoot()
 
 				# Draw current AI target for debugging
-				# canvas.create_line(
-				# 	*pixelFromPosition(self.position),
-				# 	*pixelFromPosition(self.position + Vector2(cos(radians(targetAngle)) * 0.5, sin(radians(targetAngle)) * 0.5)),
-				# 	fill = "red"
-				# )
+				if self.drawAITarget:
+					canvas.create_line(
+						*pixelFromPosition(self.position),
+						*pixelFromPosition(self.position + Vector2(cos(radians(targetAngle)) * 0.5, sin(radians(targetAngle)) * 0.5)),
+						fill = "red"
+					)
 
 			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
 			self.position += velocity
@@ -215,11 +218,12 @@ class Player(Entity):
 
 			self.timeSinceLastShot += 1
 
-		# Draw hitboxes for debugging
-		# for hitbox in self.hitboxes:
-		# 	hitbox.drawWireframe(canvas, "white")
+		if self.drawHitboxes:
+			# Draw hitboxes for debugging
+			for hitbox in self.hitboxes:
+				hitbox.drawWireframe(canvas, "white")
 
-		# Draw boundingbox for debugging
-		# bbox = self.polygon.boundingBox
-		# Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
+			# Draw bounding box for debugging
+			bbox = self.polygon.boundingBox
+			Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
 

@@ -48,6 +48,16 @@ class Game:
 				if inputs.key(*binds["p2-right"]):      self.player2.steerRight()
 				if inputs.key(*binds["p2-shoot"]):      self.player2.shoot()
 
+			# Draw collision debugging
+			if inputs.key(*binds["f2"]):
+				self.player1.drawHitboxes = not self.player1.drawHitboxes
+				self.player2.drawHitboxes = not self.player2.drawHitboxes
+
+			# Draw AI debugging
+			if inputs.key(*binds["f3"]):
+				self.player1.drawAITarget = not self.player1.drawAITarget
+				self.player2.drawAITarget = not self.player2.drawAITarget
+
 			# Update the players
 			self.player1.update(canvas, self.player2, graphics = self.graphics)
 			self.player2.update(canvas, self.player1, graphics = self.graphics)

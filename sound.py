@@ -2,8 +2,11 @@
 # Sound will only work on Windows.
 # Source: https://github.com/TaylorSMarks/playsound/blob/master/playsound.py
 
-from ctypes import c_buffer, windll
-from sys import getfilesystemencoding
+try:
+	from ctypes import c_buffer, windll
+	from sys import getfilesystemencoding
+except:
+	pass
 
 def winCommand(*command):
 	try:
