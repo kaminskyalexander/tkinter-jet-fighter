@@ -1,4 +1,5 @@
 from random import randrange
+from math import inf
 
 from setup import *
 from vector import Vector2
@@ -108,8 +109,13 @@ class InterfaceMusic:
 
 	def update(self):
 		if self.playing:
+			# Ignore KeyError exception on systems which cannot load the music
+			try:
+				musicDuration = float(sound.index[self.music]["duration"]) / 1000
+			except:
+				musicDuration = inf
 			# If the music is over
-			if (time.time() - self.startTime) > (float(sound.index[self.music]["duration"]) / 1000):
+			if (time.time() - self.startTime) > musicDuration:
 				sound.play(self.music)
 				self.startTime = time.time()
 
