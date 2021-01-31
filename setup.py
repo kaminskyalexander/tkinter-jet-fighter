@@ -8,7 +8,6 @@ from vector import Vector2
 # Initialize Tkinter
 width = 800
 height = 800
-fps = 60
 fullscreen = False
 root = tk.Tk()
 root.config(bg = "#000", width = width, height = height)
@@ -91,23 +90,23 @@ binds = {
 # Force show the window
 root.focus_force()
 
-def loop(function):
+def loop(function, fpsLimit, previousTime):
 	"""
 	Wrapper function for the main update.
 	Calls the supplied function every frame.
 	"""
 	# Get time when function call begins
 	startTime = time.time()
-	# Call the function
-	function()
+	# Call the function, find delta time
+	function(startTime - previousTime)
 	# Get the amount of time which the function call took
 	wait = time.time() - startTime
 	# Amount of time one frame takes
-	frameTime = 1000 // fps
+	frameTime = 1000 // fpsLimit
 	# Adjusted delay for how long the function took to run
 	delay = max(int(frameTime - wait), 1)
 	# Run the function again after the set delay time
-	canvas.after(delay, lambda: loop(function))
+	canvas.after(delay, lambda: loop(function, fpsLimit, startTime))
 
 def pixelFromPosition(position):
 	"""

@@ -123,20 +123,24 @@ class InterfaceStartup:
 
 	def __init__(self):
 		self.tick = 0
+		self.hasBeepPlayed = False
 
-	def update(self):
-		if self.tick == 60:
-			sound.play("beep")
-		if self.tick >= 60:
+	def update(self, deltaTime):			
+		if self.tick >= 1:
+			if not self.hasBeepPlayed:
+				sound.play("beep")
+				self.hasBeepPlayed = True
+
 			canvas.create_text(
 				pixelFromPosition(Vector2(0, 0)),
 				text = "Alexander Kaminsky",
 				fill = "white",
 				font = ("Fixedsys", InterfaceTools.fontSize(40), "")
 			)
-		if self.tick == 180:
+
+		if self.tick >= 3:
 			return 0
-		self.tick += 1
+		self.tick += 1 * deltaTime
 
 class InterfaceSplash:
 
@@ -144,11 +148,11 @@ class InterfaceSplash:
 		self.tick = 0
 		self.titleLogo = titleLogo
 
-	def update(self):
+	def update(self, deltaTime):
 		self.titleLogo.draw(Vector2(0, -0.25))
 
 		# Flash subtitle text every 30 ticks
-		if self.tick // 30 % 2:
+		if self.tick*60 // 30 % 2:
 			canvas.create_text(
 				pixelFromPosition(Vector2(0, 0.25)),
 				text = "PRESS SPACE TO START",
@@ -161,7 +165,7 @@ class InterfaceSplash:
 			sound.play("beep")
 			return 0
 
-		self.tick += 1
+		self.tick += 1 * deltaTime
 
 class InterfaceMainMenu:
 
@@ -173,18 +177,18 @@ class InterfaceMainMenu:
 		self.selectionIndex = 0
 		self.selectionSpacing = 0.15
 
-	def update(self):
+	def update(self, deltaTime):
 
 		if self.animated:
 			# Slide animation
-			self.titleLogo.draw(Vector2(0, -0.25 - (0.01 * min(self.tick, 30))))
+			self.titleLogo.draw(Vector2(0, -0.25 - (0.01 * min(self.tick*60, 30))))
 		else:
 			self.titleLogo.draw(Vector2(0, -0.55))
 
 		# Wait 180 ticks before displaying help
-		if self.tick > 180:
+		if self.tick*60 > 180:
 			# Flashing rectangle around hint
-			if self.tick // 30 % 2:
+			if self.tick*60 // 30 % 2:
 				canvas.create_rectangle(
 					*pixelFromPosition(Vector2(-0.75, 0.35)),
 					*pixelFromPosition(Vector2( 0.75, 0.75)),
@@ -202,7 +206,7 @@ class InterfaceMainMenu:
 			)
 
 		# Wait 30 ticks before drawing the options
-		if self.tick > (30 if self.animated else 0):
+		if self.tick*60 > (30 if self.animated else 0):
 			# Draw selection list
 			for i, selection in enumerate(self.selections):
 				canvas.create_text(
@@ -235,7 +239,7 @@ class InterfaceMainMenu:
 				if "AI vs. AI" not in self.selections:
 					self.selections.append("AI vs. AI")
 
-		self.tick += 1
+		self.tick += 1 * deltaTime
 
 class InterfaceGameSetup:
 
@@ -257,7 +261,7 @@ class InterfaceGameSetup:
 		]
 		self.itemSpacing = 0.15
 
-	def update(self):
+	def update(self, deltaTime):
 
 		# Draw headings
 		for i, heading in enumerate(self.headings):
@@ -301,7 +305,7 @@ class InterfaceGameSetup:
 					anchor = "e"
 				)
 			# Draw cursors, yellow and flashing every 15 ticks if ready
-			if not self.playerReady[i] or self.tick // 15 % 2:
+			if not self.playerReady[i] or self.tick*60 // 15 % 2:
 				canvas.create_rectangle(
 					pixelFromPosition(Vector2(-0.825 + i * 0.9, -0.675 + self.selectionIndex[i] * self.itemSpacing)),
 					pixelFromPosition(Vector2(-0.075 + i * 0.9, -0.525 + self.selectionIndex[i] * self.itemSpacing)),
@@ -313,7 +317,7 @@ class InterfaceGameSetup:
 		if not (self.playerReady[0] and self.playerReady[1]):
 			self.timeSinceReady = 0
 			# Flash hint text every 30 ticks
-			if self.tick // 30 % 2:
+			if self.tick*60 // 30 % 2:
 				canvas.create_text(
 					pixelFromPosition(Vector2(0, 0.8)),
 					text = "PRESS ESC TO RETURN TO MAIN MENU",
@@ -326,9 +330,9 @@ class InterfaceGameSetup:
 				sound.play("beep")
 				return 0
 		else:
-			self.timeSinceReady +=1
+			self.timeSinceReady += 1 * deltaTime
 			# Flash game starting text every 30 ticks
-			if self.tick // 30 % 2:
+			if self.tick*60 // 30 % 2:
 				canvas.create_text(
 					pixelFromPosition(Vector2(0, 0.8)),
 					text = "GAME STARTING...",
@@ -386,10 +390,10 @@ class InterfaceGameSetup:
 				self.playerReady[1] = False
 
 		# Start the game
-		if self.timeSinceReady > 120:
+		if self.timeSinceReady > 2:
 			return 1
 
-		self.tick += 1
+		self.tick += 1 * deltaTime
 
 class InterfaceHelp:
 
@@ -419,7 +423,7 @@ class InterfaceHelp:
 		}
 		self.itemSpacing = 0.2
 
-	def update(self):
+	def update(self, deltaTime):
 		# Draw objective help
 		canvas.create_text(
 			pixelFromPosition(Vector2(0, -0.85)),
@@ -455,7 +459,7 @@ class InterfaceHelp:
 				)
 
 		# Flash hint text every 30 ticks
-		if self.tick // 30 % 2:
+		if self.tick*60 // 30 % 2:
 			canvas.create_text(
 				pixelFromPosition(Vector2(0, 0.8)),
 				text = "PRESS ESC TO RETURN TO MAIN MENU",
@@ -468,7 +472,7 @@ class InterfaceHelp:
 			sound.play("beep")
 			return 0
 			
-		self.tick += 1
+		self.tick += 1 * deltaTime
 
 class InterfaceCredits:
 
@@ -490,7 +494,7 @@ class InterfaceCredits:
 			"creativecommons.org/licenses/by/3.0/\n"
 		)
 
-	def update(self):
+	def update(self, deltaTime):
 		# Draw credits
 		canvas.create_text(
 			pixelFromPosition(Vector2(0, -0.85)),
@@ -501,7 +505,7 @@ class InterfaceCredits:
 		)
 
 		# Flash hint text every 30 ticks
-		if self.tick // 30 % 2:
+		if self.tick*60 // 30 % 2:
 			canvas.create_text(
 				pixelFromPosition(Vector2(0, 0.8)),
 				text = "PRESS ESC TO RETURN TO MAIN MENU",
@@ -514,7 +518,7 @@ class InterfaceCredits:
 			sound.play("beep")
 			return 0
 			
-		self.tick += 1
+		self.tick += 1 * deltaTime
 
 class InterfaceEmpty:
 	"""
@@ -524,7 +528,7 @@ class InterfaceEmpty:
 	def __init__(self):
 		pass
 
-	def update(self):
+	def update(self, deltaTime):
 		pass
 
 class InterfaceManager:
@@ -539,9 +543,9 @@ class InterfaceManager:
 		self.titleLogo = InterfaceTitleLogo()
 		self.music = InterfaceMusic("music1")
 
-	def update(self):
+	def update(self, deltaTime):
 		self.music.update()
-		response = self.currentInterface.update()
+		response = self.currentInterface.update(deltaTime)
 		if response != None:
 
 			if isinstance(self.currentInterface, InterfaceStartup):

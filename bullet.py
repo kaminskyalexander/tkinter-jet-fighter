@@ -19,12 +19,12 @@ class Bullet(Entity):
 			angle (Vector2): The direction the bullet should travel.
 		"""
 		self.angle = angle
-		self.speed = 0.02
+		self.speed = 1.2
 		self.velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
-		self.lifespan = 140
-		self.decay = 40
+		self.lifespan = 2.333
+		self.decay = 0.667
 		self.exploded = False
-		self.explosionDuration = 30
+		self.explosionDuration = 0.5
 		# The vertices of the displayed shape
 		shape = Polygon(
 			Vector2(-0.01, -0.01),
@@ -58,7 +58,7 @@ class Bullet(Entity):
 	def explode(self):
 		self.exploded = True
 
-	def update(self, canvas):
+	def update(self, canvas, deltaTime):
 		"""
 		This function should be called every frame.
 		It transforms and draws the bullet.
@@ -67,18 +67,18 @@ class Bullet(Entity):
 			# Draw the explosion if the bullet has exploded
 			self.explosionShape.transform(self.position, 0)
 			self.explosionShape.draw(canvas)
-			self.explosionDuration -= 1
+			self.explosionDuration -= 1 * deltaTime
 		else:
 			# Move the bullet
-			self.position += self.velocity
+			self.position += self.velocity * deltaTime
 			self.screenWrap()
 			self.polygon.transform(self.position, 0)
 
 			if self.lifespan < 0:
 				# Make bullets flash as they despawn
-				if self.lifespan // 4 % 2 == 0:
+				if self.lifespan*60 // 4 % 2 == 0:
 					self.polygon.draw(canvas)
 			else:
 				self.polygon.draw(canvas)
 
-			self.lifespan -= 1
+			self.lifespan -= 1 * deltaTime

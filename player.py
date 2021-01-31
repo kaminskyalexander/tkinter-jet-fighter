@@ -1,5 +1,5 @@
 from math import atan2, cos, degrees, inf, radians, sin, sqrt
-from random import randrange
+from random import uniform
 
 from bullet import Bullet
 from entity import Entity
@@ -25,15 +25,15 @@ class Player(Entity):
 		self.angle = angle % 360
 		self.computer = computer
 		self.colour = colour
-		self.speed = 0.01
-		self.acceleration = 0.0001
-		self.maximumSpeed = 0.015
-		self.minimumSpeed = 0.005
-		self.steeringRate = 2
+		self.speed = 0.6
+		self.acceleration = 0.6
+		self.maximumSpeed = 0.9
+		self.minimumSpeed = 0.3
+		self.steeringRate = 120
 		self.timeout = 0
 		self.bullets = []
 		self.score = 0
-		self.shootCooldown = 60
+		self.shootCooldown = 1
 		self.timeSinceLastShot = 0
 		self.drawHitboxes = False
 		self.drawAITarget = False
@@ -83,7 +83,7 @@ class Player(Entity):
 		Arguments:
 			speed (float): How much to increment the speed.
 		"""
-		if self.timeout == 0:
+		if self.timeout <= 0:
 			self.speed = max(self.minimumSpeed, min(self.maximumSpeed, self.speed + speed))
 
 	def adjustAngle(self, angle):
@@ -93,20 +93,20 @@ class Player(Entity):
 		Arguments:
 			angle (float): How much to increment the angle.
 		"""
-		if self.timeout == 0:
+		if self.timeout <= 0:
 			self.angle = (self.angle + angle) % 360
 
-	def accelerate(self): self.adjustSpeed(self.acceleration)
-	def decelerate(self): self.adjustSpeed(-self.acceleration)
-	def steerLeft(self):  self.adjustAngle(-self.steeringRate)
-	def steerRight(self): self.adjustAngle(self.steeringRate)
+	def accelerate(self, deltaTime): self.adjustSpeed( self.acceleration * deltaTime)
+	def decelerate(self, deltaTime): self.adjustSpeed(-self.acceleration * deltaTime)
+	def steerLeft(self, deltaTime):  self.adjustAngle(-self.steeringRate * deltaTime)
+	def steerRight(self, deltaTime): self.adjustAngle( self.steeringRate * deltaTime)
 
 	def shoot(self):
 		"""
 		Creates an instance of Bullet in front of the player.
 		"""
-		if self.timeout == 0 and self.timeSinceLastShot > self.shootCooldown:
-			sound.play("shoot")
+		if self.timeout <= 0 and self.timeSinceLastShot > self.shootCooldown:
+			sound.play("shoot") # TODO Fix me! This causes major stuters/performance issues
 			self.timeSinceLastShot = 0
 			bulletDistance = 0.1
 			bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)
@@ -117,7 +117,7 @@ class Player(Entity):
 		Explodes the player and sets a random cooldown duration.
 		"""
 		sound.play("explosion")
-		self.timeout = randrange(40, 140)
+		self.timeout = uniform(0.667, 2.333)
 
 	def getSteeringDirection(self, angle):
 		"""
@@ -141,19 +141,19 @@ class Player(Entity):
 			return "right"
 		return ""
 
-	def update(self, canvas, enemy):
+	def update(self, canvas, deltaTime, enemy):
 		"""
 		This function should be called every frame.
 		It transforms, draws and can control the player.
 		"""
 		if self.timeout > 0:
 			# Spin the player when on timeout
-			self.angle += 4
+			self.angle += 240 * deltaTime
 			self.transform(self.position, self.angle)
 			# Flash the player every 4 ticks
-			if self.timeout // 4 % 2 == 0:
+			if self.timeout*60 // 4 % 2 == 0:
 				self.polygon.draw(canvas)
-			self.timeout -= 1
+			self.timeout -= 1 * deltaTime
 		else:
 			# If the player has AI enabled
 			if self.computer:
@@ -179,19 +179,18 @@ class Player(Entity):
 					targetAngle = nearestBullet.angle
 					# Prefer turning in the direction of the enemy
 					targetAngle += 90 if steeringDirection == "right" else -90
-					direction = self.getSteeringDirection(targetAngle)
 
 				# Steer towards the target angle
 				if abs(targetAngle - self.angle) > 10: 
-					if steeringDirection == "left": self.steerLeft()
-					elif steeringDirection == "right": self.steerRight()
+					if steeringDirection == "left": self.steerLeft(deltaTime)
+					elif steeringDirection == "right": self.steerRight(deltaTime)
 				
 				# Accelerate/decelerate depending on how far the enemy is
 				distanceFromPlayer = sqrt((self.position.x - enemy.position.x)**2 + (self.position.y - enemy.position.y)**2)
 				if distanceFromPlayer < 0.5:
-					self.accelerate()
+					self.accelerate(deltaTime)
 				elif distanceFromPlayer > 1:
-					self.decelerate()
+					self.decelerate(deltaTime)
 					
 				# Shoot if pointing towards the enemy
 				if abs(angleToPlayer - self.angle) <= 10:
@@ -206,14 +205,14 @@ class Player(Entity):
 					)
 
 			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
-			self.position += velocity
+			self.position += velocity * deltaTime
 
 			self.transform(self.position, self.angle)
 			self.polygon.draw(canvas)
 
 			self.screenWrap()
 
-			self.timeSinceLastShot += 1
+			self.timeSinceLastShot += 1 * deltaTime
 
 		if self.drawHitboxes:
 			# Draw hitboxes for debugging

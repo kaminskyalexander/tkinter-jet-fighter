@@ -5,7 +5,7 @@ from setup import *
 ui = InterfaceManager()
 game = None
 
-def main():
+def main(deltaTime):
 	"""
 	The main loop of the process.
 	Called every frame.
@@ -23,16 +23,16 @@ def main():
 		root.attributes("-fullscreen", fullscreen)
 
 	# Detect returns from the interface
-	response = ui.update()
+	response = ui.update(deltaTime)
 	if response != None:
 		# Start the game
 		game = Game(**response)
 
 	if game != None:
 		# Return to title screen after game completion
-		if game.update() == 0:
+		if game.update(deltaTime) == 0:
 			game = None
 			ui.currentInterface = InterfaceStartup()
 
-loop(main)
+loop(main, 120, time.time())
 tk.mainloop()
