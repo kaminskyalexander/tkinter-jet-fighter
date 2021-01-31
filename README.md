@@ -3,7 +3,7 @@ Tkinter game built using only the Python Standard Library.
 To launch the game, run **main.py**.
 
 ## Important:
-This game has only been tested with **Python 3.8.3 64-bit** on **Windows 10 Version 1909**.
+This game has only been tested with **Python 3.9.0 64-bit** on **Windows 10 Version 20H2**.
 Issues may arise on non-Windows systems.
 ### Known Issues:
 * Sound functionality will be ignored on non-Windows systems.
