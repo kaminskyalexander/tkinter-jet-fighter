@@ -156,27 +156,31 @@ class PlayerComputer(Player):
 		super().__init__(position, angle, colour)
 		self.drawAITarget = False
 
-	def getSteeringDirection(self, angle):
+	def getSteeringDirection(self, targetAngle):
 		"""
 		Determines which way is fastest to turn to get to a specific angle.
+		Returns a Direction.LEFT or Direction.RIGHT.
 
 		Arguments:
-			angle (float): The desired angle to turn to.
+			targetAngle (float): The desired angle to turn to.
 
 		Example:
 			>>> self.getSteeringDirection(90)
-			"left"
+			0
 		"""
-		
-		if self.angle < angle:
-			if abs(self.angle - angle) < 180:
-				return "right"
-			return "left"
-		else:
-			if abs(self.angle - angle) < 180:
-				return "left"
-			return "right"
-		return ""
+
+		epsilon = 2.5
+		if abs(self.angle - targetAngle) < epsilon:
+			return
+
+		if self.angle < targetAngle:
+			if abs(self.angle - targetAngle) < 180:
+				return Direction.RIGHT
+			return Direction.LEFT
+		elif self.angle > targetAngle:
+			if abs(self.angle - targetAngle) < 180:
+				return Direction.LEFT
+			return Direction.RIGHT
 
 	def update(self, canvas, deltaTime, enemy):
 		super().update(canvas, deltaTime, enemy)
@@ -201,12 +205,12 @@ class PlayerComputer(Player):
 			# Steer perpendicular to the bullet path
 			targetAngle = nearestBullet.angle
 			# Prefer turning in the direction of the enemy
-			targetAngle += 90 if steeringDirection == "right" else -90
+			targetAngle += 90 if steeringDirection == Direction.RIGHT else -90
 
 		# Steer towards the target angle
 		if abs(targetAngle - self.angle) > 10: 
-			if steeringDirection == "left": self.steerLeft(deltaTime)
-			elif steeringDirection == "right": self.steerRight(deltaTime)
+			if steeringDirection == Direction.LEFT: self.steerLeft(deltaTime)
+			elif steeringDirection == Direction.RIGHT: self.steerRight(deltaTime)
 		
 		# Accelerate/decelerate depending on how far the enemy is
 		distanceFromPlayer = sqrt((self.position.x - enemy.position.x)**2 + (self.position.y - enemy.position.y)**2)

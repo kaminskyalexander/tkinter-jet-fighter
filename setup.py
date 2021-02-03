@@ -90,6 +90,12 @@ binds = {
 # Force show the window
 root.focus_force()
 
+class Direction:
+	LEFT = 0
+	RIGHT = 1
+	FORWARD = UP = 2 
+	BACKWARD = DOWN = 3
+
 def loop(function, fpsLimit, previousTime):
 	"""
 	Wrapper function for the main update.
