@@ -239,7 +239,7 @@ class InterfaceMainMenu:
 				if "AI vs. AI" not in self.selections:
 					self.selections.append("AI vs. AI")
 
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceGameSetup:
 
@@ -393,7 +393,7 @@ class InterfaceGameSetup:
 		if self.timeSinceReady > 2:
 			return 1
 
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceHelp:
 
@@ -472,7 +472,7 @@ class InterfaceHelp:
 			sound.play("beep")
 			return 0
 			
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceCredits:
 
@@ -518,7 +518,7 @@ class InterfaceCredits:
 			sound.play("beep")
 			return 0
 			
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceEmpty:
 	"""

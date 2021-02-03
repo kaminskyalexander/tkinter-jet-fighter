@@ -212,7 +212,7 @@ class Player(Entity):
 
 			self.screenWrap()
 
-			self.timeSinceLastShot += 1 * deltaTime
+			self.timeSinceLastShot += deltaTime
 
 		if self.drawHitboxes:
 			# Draw hitboxes for debugging
