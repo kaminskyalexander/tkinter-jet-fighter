@@ -8,6 +8,7 @@ class Game:
 	The container for the game.
 	Stores the players, responds to events in the game and controls inputs.
 	"""
+	gameDuration = 180
 
 	def __init__(self, player1AI, player2AI, colour1, colour2):
 		"""
@@ -24,7 +25,6 @@ class Game:
 		player2Type = Player if not player2AI else PlayerComputer
 		self.player1 = player1Type(Vector2(-0.5, -0.5), 90, colour1)
 		self.player2 = player2Type(Vector2(0.5, 0.5), -90, colour2)
-		self.gameDuration = 180
 
 		sound.play("music0")
 		self.isMusicPlaying = True

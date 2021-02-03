@@ -11,6 +11,11 @@ class Player(Entity):
 	"""
 	Entity with controls.
 	"""
+	maximumSpeed = 0.9
+	minimumSpeed = 0.3
+	steeringRate = 120
+	acceleration = 0.6
+	shootCooldown = 1
 
 	def __init__(self, position, angle, colour):
 		"""
@@ -25,14 +30,9 @@ class Player(Entity):
 		self.angle = angle % 360
 		self.colour = colour
 		self.speed = 0.6
-		self.acceleration = 0.6
-		self.maximumSpeed = 0.9
-		self.minimumSpeed = 0.3
-		self.steeringRate = 120
 		self.timeout = 0
 		self.bullets = []
 		self.score = 0
-		self.shootCooldown = 1
 		self.timeSinceLastShot = 0
 		self.drawHitboxes = False
 		# The vertices of the displayed shape

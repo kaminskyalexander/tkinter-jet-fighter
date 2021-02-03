@@ -9,7 +9,11 @@ class Bullet(Entity):
 	"""
 	Stores information relevant to in-game bullets.
 	"""
-
+	speed = 1.2
+	lifespan = 2.333
+	decay = 0.667
+	explosionDuration = 0.5
+	
 	def __init__(self, position, angle):
 		"""
 		Creates a bullet.
@@ -19,12 +23,9 @@ class Bullet(Entity):
 			angle (Vector2): The direction the bullet should travel.
 		"""
 		self.angle = angle
-		self.speed = 1.2
 		self.velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
-		self.lifespan = 2.333
-		self.decay = 0.667
 		self.exploded = False
-		self.explosionDuration = 0.5
+
 		# The vertices of the displayed shape
 		shape = Polygon(
 			Vector2(-0.01, -0.01),
