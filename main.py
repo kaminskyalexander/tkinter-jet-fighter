@@ -1,38 +1,40 @@
-from game import Game
-from interface import InterfaceManager, InterfaceStartup
-from setup import *
+if __name__ == "__main__":
 
-ui = InterfaceManager()
-game = None
+	from game import Game
+	from interface import InterfaceManager, InterfaceStartup
+	from setup import *
 
-def main(deltaTime):
-	"""
-	The main loop of the process.
-	Called every frame.
-	"""
-	global game, fullscreen
-	# Clear all objects from the screen
-	canvas.delete("all")
+	ui = InterfaceManager()
+	game = None
 
-	# Update input dictionary
-	inputs.refresh()
+	def main(deltaTime):
+		"""
+		The main loop of the process.
+		Called every frame.
+		"""
+		global game, fullscreen
+		# Clear all objects from the screen
+		canvas.delete("all")
 
-	# Fullscreen
-	if inputs.key(*binds["f11"]):
-		fullscreen = not fullscreen
-		root.attributes("-fullscreen", fullscreen)
+		# Update input dictionary
+		inputs.refresh()
 
-	# Detect returns from the interface
-	response = ui.update(deltaTime)
-	if response != None:
-		# Start the game
-		game = Game(**response)
+		# Fullscreen
+		if inputs.key(*binds["f11"]):
+			fullscreen = not fullscreen
+			root.attributes("-fullscreen", fullscreen)
 
-	if game != None:
-		# Return to title screen after game completion
-		if game.update(deltaTime) == 0:
-			game = None
-			ui.currentInterface = InterfaceStartup()
+		# Detect returns from the interface
+		response = ui.update(deltaTime)
+		if response != None:
+			# Start the game
+			game = Game(**response)
 
-loop(main, 120, time.time())
-tk.mainloop()
+		if game != None:
+			# Return to title screen after game completion
+			if game.update(deltaTime) == 0:
+				game = None
+				ui.currentInterface = InterfaceStartup()
+
+	loop(main, 120, time.time())
+	tk.mainloop()

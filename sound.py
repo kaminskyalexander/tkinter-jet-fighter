@@ -8,8 +8,59 @@ try:
 except:
 	pass
 
-def winCommand(*command):
-	try:
+import multiprocessing
+
+class SoundCommand:
+	PLAY = 0
+	STOP = 1
+
+class SoundProcessWorker(multiprocessing.Process):
+
+	def __init__(self, taskQueue, sounds):
+
+		multiprocessing.Process.__init__(self)
+		self.taskQueue = taskQueue
+
+		self.sounds = sounds
+		self.index = {}
+
+	def run(self):
+		# Opens each sound and stores it in the index
+		for sound in self.sounds:
+			alias = f"sound_{sound}"
+			self.winCommand("open \"" + self.sounds[sound] + "\" alias", alias)
+			self.winCommand("set", alias, "time format milliseconds")
+			duration = self.winCommand("status", alias, "length")
+
+			self.index[sound] = {
+				"alias": alias,
+				"duration": duration.decode()
+			}
+
+		while True:
+			nextTask = self.taskQueue.get()
+			if nextTask:
+				if nextTask[0] == SoundCommand.PLAY:
+					self.play(nextTask[1])
+				elif nextTask[0] == SoundCommand.STOP:
+					self.stop(nextTask[1])
+
+	def play(self, sound):
+		try:
+			alias = self.index[sound]["alias"]
+			duration = self.index[sound]["duration"]
+			self.winCommand("play", alias, "from 0 to", duration)
+		except:
+			raise Exception("Sound unable to play. (Incorrect index name?)")
+
+	def stop(self, sound):
+		try:
+			alias = self.index[sound]["alias"]
+			self.winCommand("stop", alias)
+		except:
+			raise Exception("Sound unable to stop. (Incorrect index name?)")
+
+	def winCommand(self, *command):
 		buf = c_buffer(255)
 		command = ' '.join(command).encode(getfilesystemencoding())
 		errorCode = int(windll.winmm.mciSendStringA(command, buf, 254, 0))
@@ -18,8 +69,6 @@ def winCommand(*command):
 			windll.winmm.mciGetErrorStringA(errorCode, errorBuffer, 254)
 			raise Exception(f"Error {str(errorCode)} for command:\n {command.decode()} \n\n {errorBuffer.value.decode()}")
 		return buf.value
-	except:
-		pass
 
 class SoundManager:
 	"""
@@ -35,22 +84,11 @@ class SoundManager:
 			sounds (dict): List of sounds formatted name:filepath
 		"""
 		try:
-			self.sounds = sounds
-			self.index = {}
-
-			# Opens each sound and stores it in the index
-			for sound in self.sounds:
-				alias = f"sound_{sound}"
-				winCommand("open \"" + self.sounds[sound] + "\" alias", alias)
-				winCommand("set", alias, "time format milliseconds")
-				duration = winCommand("status", alias, "length")
-
-				self.index[sound] = {
-					"alias": alias,
-					"duration": duration.decode()
-				}
+			self.taskQueue = multiprocessing.JoinableQueue()
+			self.processWorker = SoundProcessWorker(self.taskQueue, sounds)
+			self.processWorker.start()
 		except:
-			pass
+			print("Sound manager encountered an error! Sounds will not play.")
 
 	def play(self, sound):
 		"""
@@ -60,11 +98,9 @@ class SoundManager:
 			sound (str): The sound index to play.
 		"""
 		try:
-			alias = self.index[sound]["alias"]
-			duration = self.index[sound]["duration"]
-			winCommand("play", alias, "from 0 to", duration)
+			self.taskQueue.put((SoundCommand.PLAY, sound))
 		except:
-			pass #raise Exception("Sound unable to play. (Incorrect index name?)")
+			print("Sound manager encountered an error! Sounds will not play.")
 
 	def stop(self, sound):
 		"""
@@ -74,13 +110,14 @@ class SoundManager:
 			sound (str): The sound index to stop.
 		"""
 		try:
-			alias = self.index[sound]["alias"]
-			winCommand("stop", alias)
+			self.taskQueue.put((SoundCommand.STOP, sound))
 		except:
-			pass #raise Exception("Sound unable to stop. (Incorrect index name?)")
+			print("Sound manager encountered an error! Sounds will not play.")
+
+	def quit(self):
+		self.processWorker.terminate()
 
 # Test the program.
 if __name__ == "__main__":
-	import time
 	sound = SoundManager(sounds = {"beep": "assets/beep.wav"})
 	sound.play("beep")

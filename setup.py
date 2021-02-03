@@ -141,3 +141,10 @@ def positionFromPixel(x, y):
 	width = canvas.winfo_width()
 	height = canvas.winfo_height()
 	return Vector2((x - width/2) / (height/2), (y - height/2) / (height/2))
+
+def onWindowClose():
+	sound.quit()
+	root.destroy()
+	quit()
+
+root.protocol("WM_DELETE_WINDOW", onWindowClose)
