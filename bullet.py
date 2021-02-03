@@ -67,7 +67,7 @@ class Bullet(Entity):
 			# Draw the explosion if the bullet has exploded
 			self.explosionShape.transform(self.position, 0)
 			self.explosionShape.draw(canvas)
-			self.explosionDuration -= 1 * deltaTime
+			self.explosionDuration -= deltaTime
 		else:
 			# Move the bullet
 			self.position += self.velocity * deltaTime
@@ -81,4 +81,4 @@ class Bullet(Entity):
 			else:
 				self.polygon.draw(canvas)
 
-			self.lifespan -= 1 * deltaTime
+			self.lifespan -= deltaTime

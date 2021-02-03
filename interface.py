@@ -140,7 +140,7 @@ class InterfaceStartup:
 
 		if self.tick >= 3:
 			return 0
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceSplash:
 
@@ -165,7 +165,7 @@ class InterfaceSplash:
 			sound.play("beep")
 			return 0
 
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceMainMenu:
 
@@ -239,7 +239,7 @@ class InterfaceMainMenu:
 				if "AI vs. AI" not in self.selections:
 					self.selections.append("AI vs. AI")
 
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceGameSetup:
 
@@ -330,7 +330,7 @@ class InterfaceGameSetup:
 				sound.play("beep")
 				return 0
 		else:
-			self.timeSinceReady += 1 * deltaTime
+			self.timeSinceReady += deltaTime
 			# Flash game starting text every 30 ticks
 			if self.tick*60 // 30 % 2:
 				canvas.create_text(
@@ -393,7 +393,7 @@ class InterfaceGameSetup:
 		if self.timeSinceReady > 2:
 			return 1
 
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceHelp:
 
@@ -472,7 +472,7 @@ class InterfaceHelp:
 			sound.play("beep")
 			return 0
 			
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceCredits:
 
@@ -518,7 +518,7 @@ class InterfaceCredits:
 			sound.play("beep")
 			return 0
 			
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 
 class InterfaceEmpty:
 	"""

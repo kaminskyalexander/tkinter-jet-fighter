@@ -143,5 +143,5 @@ class Game:
 		if self.tick >= self.gameDuration + 3:
 			return 0
 		
-		self.tick += 1 * deltaTime
+		self.tick += deltaTime
 

@@ -153,7 +153,7 @@ class Player(Entity):
 			# Flash the player every 4 ticks
 			if self.timeout*60 // 4 % 2 == 0:
 				self.polygon.draw(canvas)
-			self.timeout -= 1 * deltaTime
+			self.timeout -= deltaTime
 		else:
 			# If the player has AI enabled
 			if self.computer:
@@ -212,7 +212,7 @@ class Player(Entity):
 
 			self.screenWrap()
 
-			self.timeSinceLastShot += 1 * deltaTime
+			self.timeSinceLastShot += deltaTime
 
 		if self.drawHitboxes:
 			# Draw hitboxes for debugging
