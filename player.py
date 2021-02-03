@@ -12,7 +12,7 @@ class Player(Entity):
 	Entity with controls.
 	"""
 
-	def __init__(self, position, angle, computer, colour):
+	def __init__(self, position, angle, colour):
 		"""
 		Creates a player.
 
@@ -23,7 +23,6 @@ class Player(Entity):
 			colour (str): Tkinter format color.
 		"""
 		self.angle = angle % 360
-		self.computer = computer
 		self.colour = colour
 		self.speed = 0.6
 		self.acceleration = 0.6
@@ -36,7 +35,6 @@ class Player(Entity):
 		self.shootCooldown = 1
 		self.timeSinceLastShot = 0
 		self.drawHitboxes = False
-		self.drawAITarget = False
 		# The vertices of the displayed shape
 		shape = Polygon(
 			Vector2( 0.0637760,  0.0000000),
@@ -119,6 +117,45 @@ class Player(Entity):
 		sound.play("explosion")
 		self.timeout = uniform(0.667, 2.333)
 
+	def update(self, canvas, deltaTime, enemy):
+		"""
+		This function should be called every frame.
+		It transforms, draws and can control the player.
+		"""
+		if self.timeout > 0:
+			# Spin the player when on timeout
+			self.angle += 240 * deltaTime
+			self.transform(self.position, self.angle)
+			# Flash the player every 4 ticks
+			if self.timeout*60 // 4 % 2 == 0:
+				self.polygon.draw(canvas)
+			self.timeout -= deltaTime
+		else:
+			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
+			self.position += velocity * deltaTime
+
+			self.transform(self.position, self.angle)
+			self.polygon.draw(canvas)
+
+			self.screenWrap()
+
+			self.timeSinceLastShot += deltaTime
+
+		if self.drawHitboxes:
+			# Draw hitboxes for debugging
+			for hitbox in self.hitboxes:
+				hitbox.drawWireframe(canvas, "white")
+
+			# Draw bounding box for debugging
+			bbox = self.polygon.boundingBox
+			Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
+
+class PlayerComputer(Player):
+
+	def __init__(self, position, angle, colour):
+		super().__init__(position, angle, colour)
+		self.drawAITarget = False
+
 	def getSteeringDirection(self, angle):
 		"""
 		Determines which way is fastest to turn to get to a specific angle.
@@ -142,84 +179,50 @@ class Player(Entity):
 		return ""
 
 	def update(self, canvas, deltaTime, enemy):
-		"""
-		This function should be called every frame.
-		It transforms, draws and can control the player.
-		"""
-		if self.timeout > 0:
-			# Spin the player when on timeout
-			self.angle += 240 * deltaTime
-			self.transform(self.position, self.angle)
-			# Flash the player every 4 ticks
-			if self.timeout*60 // 4 % 2 == 0:
-				self.polygon.draw(canvas)
-			self.timeout -= deltaTime
-		else:
-			# If the player has AI enabled
-			if self.computer:
-				smallestDistanceFromBullet = inf
-				nearestBullet = None
-				
-				# Finds the nearest bullet
-				for bullet in self.bullets + enemy.bullets:
-					distanceToBullet = sqrt((self.position.x - bullet.position.x)**2 + (self.position.y - bullet.position.y)**2)
-					if distanceToBullet < smallestDistanceFromBullet:
-						smallestDistanceFromBullet = distanceToBullet
-						nearestBullet = bullet
-				
-				# Find optimal path (direction to steer) to player
-				directionToEnemy = enemy.position - self.position
-				targetAngle = degrees(atan2(directionToEnemy.y, directionToEnemy.x)) % 360
-				angleToPlayer = targetAngle
-				steeringDirection = self.getSteeringDirection(targetAngle)
-					
-				# Avoid bullets when they are nearby
-				if smallestDistanceFromBullet < 0.5:
-					# Steer perpendicular to the bullet path
-					targetAngle = nearestBullet.angle
-					# Prefer turning in the direction of the enemy
-					targetAngle += 90 if steeringDirection == "right" else -90
+		super().update(canvas, deltaTime, enemy)
+		smallestDistanceFromBullet = inf
+		nearestBullet = None
+		
+		# Finds the nearest bullet
+		for bullet in self.bullets + enemy.bullets:
+			distanceToBullet = sqrt((self.position.x - bullet.position.x)**2 + (self.position.y - bullet.position.y)**2)
+			if distanceToBullet < smallestDistanceFromBullet:
+				smallestDistanceFromBullet = distanceToBullet
+				nearestBullet = bullet
+		
+		# Find optimal path (direction to steer) to player
+		directionToEnemy = enemy.position - self.position
+		targetAngle = degrees(atan2(directionToEnemy.y, directionToEnemy.x)) % 360
+		angleToPlayer = targetAngle
+		steeringDirection = self.getSteeringDirection(targetAngle)
+			
+		# Avoid bullets when they are nearby
+		if smallestDistanceFromBullet < 0.5:
+			# Steer perpendicular to the bullet path
+			targetAngle = nearestBullet.angle
+			# Prefer turning in the direction of the enemy
+			targetAngle += 90 if steeringDirection == "right" else -90
 
-				# Steer towards the target angle
-				if abs(targetAngle - self.angle) > 10: 
-					if steeringDirection == "left": self.steerLeft(deltaTime)
-					elif steeringDirection == "right": self.steerRight(deltaTime)
-				
-				# Accelerate/decelerate depending on how far the enemy is
-				distanceFromPlayer = sqrt((self.position.x - enemy.position.x)**2 + (self.position.y - enemy.position.y)**2)
-				if distanceFromPlayer < 0.5:
-					self.accelerate(deltaTime)
-				elif distanceFromPlayer > 1:
-					self.decelerate(deltaTime)
-					
-				# Shoot if pointing towards the enemy
-				if abs(angleToPlayer - self.angle) <= 10:
-					self.shoot()
+		# Steer towards the target angle
+		if abs(targetAngle - self.angle) > 10: 
+			if steeringDirection == "left": self.steerLeft(deltaTime)
+			elif steeringDirection == "right": self.steerRight(deltaTime)
+		
+		# Accelerate/decelerate depending on how far the enemy is
+		distanceFromPlayer = sqrt((self.position.x - enemy.position.x)**2 + (self.position.y - enemy.position.y)**2)
+		if distanceFromPlayer < 0.5:
+			self.accelerate(deltaTime)
+		elif distanceFromPlayer > 1:
+			self.decelerate(deltaTime)
+			
+		# Shoot if pointing towards the enemy
+		if abs(angleToPlayer - self.angle) <= 10:
+			self.shoot()
 
-				# Draw current AI target for debugging
-				if self.drawAITarget:
-					canvas.create_line(
-						*pixelFromPosition(self.position),
-						*pixelFromPosition(self.position + Vector2(cos(radians(targetAngle)) * 0.5, sin(radians(targetAngle)) * 0.5)),
-						fill = "red"
-					)
-
-			velocity = Vector2(cos(radians(self.angle)) * self.speed, sin(radians(self.angle)) * self.speed)
-			self.position += velocity * deltaTime
-
-			self.transform(self.position, self.angle)
-			self.polygon.draw(canvas)
-
-			self.screenWrap()
-
-			self.timeSinceLastShot += deltaTime
-
-		if self.drawHitboxes:
-			# Draw hitboxes for debugging
-			for hitbox in self.hitboxes:
-				hitbox.drawWireframe(canvas, "white")
-
-			# Draw bounding box for debugging
-			bbox = self.polygon.boundingBox
-			Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
-
+		# Draw current AI target for debugging
+		if self.drawAITarget:
+			canvas.create_line(
+				*pixelFromPosition(self.position),
+				*pixelFromPosition(self.position + Vector2(cos(radians(targetAngle)) * 0.5, sin(radians(targetAngle)) * 0.5)),
+				fill = "red"
+			)

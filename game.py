@@ -1,4 +1,4 @@
-from player import Player
+from player import Player, PlayerComputer
 from setup import *
 from vector import Vector2
 from interface import InterfaceTools
@@ -20,8 +20,10 @@ class Game:
 			colour2 (str): Tkinter format colour applied on Player 2.
 		"""
 		self.tick = 0
-		self.player1 = Player(Vector2(-0.5, -0.5), 90, player1AI, colour1)
-		self.player2 = Player(Vector2(0.5, 0.5), -90, player2AI, colour2)
+		player1Type = Player if not player1AI else PlayerComputer
+		player2Type = Player if not player2AI else PlayerComputer
+		self.player1 = player1Type(Vector2(-0.5, -0.5), 90, colour1)
+		self.player2 = player2Type(Vector2(0.5, 0.5), -90, colour2)
 		self.gameDuration = 180
 
 		sound.play("music0")
@@ -36,13 +38,13 @@ class Game:
 		# Game is not over
 		if self.tick < self.gameDuration:
 			# Register keypresses and act accordingly if the player is not an AI
-			if not self.player1.computer:
+			if isinstance(self.player1, Player):
 				if inputs.key(*binds["p1-accelerate"]): self.player1.accelerate(deltaTime)
 				if inputs.key(*binds["p1-decelerate"]): self.player1.decelerate(deltaTime)
 				if inputs.key(*binds["p1-left"]):       self.player1.steerLeft(deltaTime)
 				if inputs.key(*binds["p1-right"]):      self.player1.steerRight(deltaTime)
 				if inputs.key(*binds["p1-shoot"]):      self.player1.shoot()
-			if not self.player2.computer:
+			if isinstance(self.player2, Player):
 				if inputs.key(*binds["p2-accelerate"]): self.player2.accelerate(deltaTime)
 				if inputs.key(*binds["p2-decelerate"]): self.player2.decelerate(deltaTime)
 				if inputs.key(*binds["p2-left"]):       self.player2.steerLeft(deltaTime)
