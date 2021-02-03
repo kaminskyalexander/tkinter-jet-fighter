@@ -26,6 +26,7 @@ class Game:
 
 		sound.play("music0")
 		self.isMusicPlaying = True
+		self.previousBeepTime = 0
 
 	def update(self, deltaTime):
 		"""
@@ -120,7 +121,8 @@ class Game:
 				self.isMusicPlaying = False
 
 			# Beeping every 30 ticks
-			if int(self.tick*60) % 30 == 0:
+			if self.tick - self.previousBeepTime >= 0.5:
+				self.previousBeepTime = self.tick
 				sound.play("beep")
 
 			# Display the winner
