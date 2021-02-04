@@ -73,6 +73,67 @@ class InterfaceTools:
 		# Position the text in front of the rectangle
 		canvas.tag_raise(textObject)
 
+class InterfaceListMenuBase:
+
+	def __init__(self, selections, selectionIndex, selectionSpacing):
+		"""
+		Doc
+
+		Arguments:
+			selections (list:str): All selectable option names.
+			selectionIndex (int): Initial selection index for cursor.
+			selectionSpacing (float): Padding in between menu options.
+		"""
+		self.selections = selections
+		self.selectionIndex = selectionIndex
+		self.selectionSpacing = selectionSpacing
+
+	def drawHint(self):
+		# Flashing rectangle around hint
+		if self.tick*60 // 30 % 2:
+			canvas.create_rectangle(
+				*pixelFromPosition(Vector2(-0.75, 0.35)),
+				*pixelFromPosition(Vector2( 0.75, 0.75)),
+				fill = "",
+				outline = "yellow",
+				width = InterfaceTools.imageScale(4)
+			)
+		# Hint text
+		canvas.create_text(
+			*pixelFromPosition(Vector2(0, 0.55)),
+			text = "HINT: Use the UP ARROW, DOWN\nARROW and SPACE keys to make\nyour selection...",
+			fill = "white",
+			font = ("Fixedsys", InterfaceTools.fontSize(25), ""),
+			anchor = "center"
+		)
+
+	def update(self):
+		# Draw selection list
+		for i, selection in enumerate(self.selections):
+			canvas.create_text(
+				pixelFromPosition(Vector2(-0.5, -0.25 + i * self.selectionSpacing)),
+				text = self.selections[i],
+				fill = "white",
+				font = ("Fixedsys", InterfaceTools.fontSize(40), ""),
+				anchor = "w"
+			)
+
+		# Draw cursor
+		shape = [
+			*pixelFromPosition(Vector2(-0.025 - 0.65, -0.275 + self.selectionIndex * self.selectionSpacing)),
+			*pixelFromPosition(Vector2(-0.025 - 0.65, -0.225 + self.selectionIndex * self.selectionSpacing)),
+			*pixelFromPosition(Vector2( 0.025 - 0.65, -0.250 + self.selectionIndex * self.selectionSpacing)),
+		]
+		canvas.create_polygon(shape, fill = "lightgrey")
+
+		# Input response
+		if inputs.key(*binds["ui-up"]):
+			sound.play("beep")
+			self.selectionIndex = (self.selectionIndex - 1) % len(self.selections)
+		if inputs.key(*binds["ui-down"]): 
+			sound.play("beep")
+			self.selectionIndex = (self.selectionIndex + 1) % len(self.selections)
+
 class InterfaceTitleLogo:
 	"""
 	Class used across sevel interfaces to draw the title logo.
@@ -167,15 +228,17 @@ class InterfaceSplash:
 
 		self.tick += deltaTime
 
-class InterfaceMainMenu:
+class InterfaceMainMenu(InterfaceListMenuBase):
 
 	def __init__(self, titleLogo, animated = False):
 		self.tick = 0
 		self.animated = animated
 		self.titleLogo = titleLogo
-		self.selections = ["Player vs. Player", "Player vs. AI", "How to Play", "Credits"]
-		self.selectionIndex = 0
-		self.selectionSpacing = 0.15
+		super().__init__(
+			selections = ["Player vs. Player", "Player vs. AI", "How to Play", "Credits"], 
+			selectionIndex = 0, 
+			selectionSpacing = 0.15
+		)
 
 	def update(self, deltaTime):
 
@@ -187,51 +250,12 @@ class InterfaceMainMenu:
 
 		# Wait 180 ticks before displaying help
 		if self.tick*60 > 180:
-			# Flashing rectangle around hint
-			if self.tick*60 // 30 % 2:
-				canvas.create_rectangle(
-					*pixelFromPosition(Vector2(-0.75, 0.35)),
-					*pixelFromPosition(Vector2( 0.75, 0.75)),
-					fill = "",
-					outline = "yellow",
-					width = InterfaceTools.imageScale(4)
-				)
-			# Hint text
-			canvas.create_text(
-				*pixelFromPosition(Vector2(0, 0.55)),
-				text = "HINT: Use the UP ARROW, DOWN\nARROW and SPACE keys to make\nyour selection...",
-				fill = "white",
-				font = ("Fixedsys", InterfaceTools.fontSize(25), ""),
-				anchor = "center"
-			)
+			self.drawHint()
 
 		# Wait 30 ticks before drawing the options
 		if self.tick*60 > (30 if self.animated else 0):
-			# Draw selection list
-			for i, selection in enumerate(self.selections):
-				canvas.create_text(
-					pixelFromPosition(Vector2(-0.5, -0.25 + i * self.selectionSpacing)),
-					text = self.selections[i],
-					fill = "white",
-					font = ("Fixedsys", InterfaceTools.fontSize(40), ""),
-					anchor = "w"
-				)
+			super().update()
 
-			# Draw cursor
-			shape = [
-				*pixelFromPosition(Vector2(-0.025 - 0.65, -0.275 + self.selectionIndex * self.selectionSpacing)),
-				*pixelFromPosition(Vector2(-0.025 - 0.65, -0.225 + self.selectionIndex * self.selectionSpacing)),
-				*pixelFromPosition(Vector2( 0.025 - 0.65, -0.250 + self.selectionIndex * self.selectionSpacing)),
-			]
-			canvas.create_polygon(shape, fill = "lightgrey")
-
-			# Input response
-			if inputs.key(*binds["ui-up"]):
-				sound.play("beep")
-				self.selectionIndex = (self.selectionIndex - 1) % len(self.selections)
-			if inputs.key(*binds["ui-down"]): 
-				sound.play("beep")
-				self.selectionIndex = (self.selectionIndex + 1) % len(self.selections)
 			if inputs.key(*binds["ui-select"]): 
 				sound.play("beep")
 				return self.selectionIndex
@@ -518,6 +542,30 @@ class InterfaceCredits:
 			sound.play("beep")
 			return 0
 			
+		self.tick += deltaTime
+
+class InterfacePauseMenu(InterfaceListMenuBase):
+
+	def __init__(self):
+		self.tick = 0
+		super().__init__(
+			selections = ["Resume", "Quit to Title"],
+			selectionIndex = 0,
+			selectionSpacing = 0.15
+		)
+
+	def update(self, deltaTime):
+
+		# Wait 180 ticks before displaying help
+		if self.tick*60 > 180:
+			self.drawHint()
+
+		super().update()
+
+		if inputs.key(*binds["ui-select"]): 
+			sound.play("beep")
+			return self.selectionIndex
+
 		self.tick += deltaTime
 
 class InterfaceEmpty:
