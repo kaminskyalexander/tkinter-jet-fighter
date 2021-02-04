@@ -180,5 +180,6 @@ class Game:
 					sound.stop("music0")
 					return 1
 		
-		self.tick += deltaTime
+		if not self.isPaused:
+			self.tick += deltaTime
 
