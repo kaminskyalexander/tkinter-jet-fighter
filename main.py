@@ -1,7 +1,7 @@
 if __name__ == "__main__":
 
 	from game import Game
-	from interface import InterfaceManager, InterfaceStartup
+	from interface import InterfaceManager, InterfaceStartup, InterfaceSplash
 	from setup import *
 
 	ui = InterfaceManager()
@@ -32,9 +32,15 @@ if __name__ == "__main__":
 
 		if game != None:
 			# Return to title screen after game completion
-			if game.update(deltaTime) == 0:
+			response = game.update(deltaTime)
+			if response == 0:
 				game = None
 				ui.currentInterface = InterfaceStartup()
+			# Quit to title
+			elif response == 1:
+				game = None
+				ui.currentInterface = InterfaceSplash(ui.titleLogo)
+				ui.music.play()
 
 	loop(main, 120, time.time())
 	tk.mainloop()
