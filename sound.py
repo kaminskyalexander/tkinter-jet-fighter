@@ -41,15 +41,15 @@ class SoundProcessWorker(multiprocessing.Process):
 			nextTask = self.taskQueue.get()
 			if nextTask:
 				if nextTask[0] == SoundCommand.PLAY:
-					self.play(nextTask[1])
+					self.play(nextTask[1], nextTask[2])
 				elif nextTask[0] == SoundCommand.STOP:
 					self.stop(nextTask[1])
 
-	def play(self, sound):
+	def play(self, sound, start):
 		try:
 			alias = self.index[sound]["alias"]
 			duration = self.index[sound]["duration"]
-			self.winCommand("play", alias, "from 0 to", duration)
+			self.winCommand("play", alias, "from", str(start), "to", duration)
 		except:
 			raise Exception("Sound unable to play. (Incorrect index name?)")
 
@@ -90,15 +90,16 @@ class SoundManager:
 		except:
 			print("Sound manager encountered an error! Sounds will not play.")
 
-	def play(self, sound):
+	def play(self, sound, start = 0):
 		"""
 		Plays a sound.
 
 		Arguments:
 			sound (str): The sound index to play.
+			start (int): The time in ms to start the sound at. Default is zero.
 		"""
 		try:
-			self.taskQueue.put((SoundCommand.PLAY, sound))
+			self.taskQueue.put((SoundCommand.PLAY, sound, start))
 		except:
 			print("Sound manager encountered an error! Sounds will not play.")
 
