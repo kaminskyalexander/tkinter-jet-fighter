@@ -1,4 +1,4 @@
-from player import Player, PlayerComputer
+from player import Player, PlayerComputer, PlayerComputerLegacy
 from setup import *
 from vector import Vector2
 from interface import InterfaceTools

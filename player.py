@@ -16,6 +16,7 @@ class Player(Entity):
 	steeringRate = 120
 	acceleration = 0.6
 	shootCooldown = 1
+	bulletSpawnDistance = 0.1
 
 	def __init__(self, position, angle, colour):
 		"""
@@ -106,8 +107,8 @@ class Player(Entity):
 		if self.timeout <= 0 and self.timeSinceLastShot > self.shootCooldown:
 			sound.play("shoot")
 			self.timeSinceLastShot = 0
-			bulletDistance = 0.1
-			bulletPosition = Vector2(cos(radians(self.angle)) * bulletDistance, sin(radians(self.angle)) * bulletDistance)
+			
+			bulletPosition = Vector2(cos(radians(self.angle)) * self.bulletSpawnDistance, sin(radians(self.angle)) * self.bulletSpawnDistance)
 			self.bullets.append(Bullet(self.position + bulletPosition, self.angle))
 
 	def explode(self):
@@ -150,7 +151,7 @@ class Player(Entity):
 			bbox = self.polygon.boundingBox
 			Polygon(Vector2(bbox[0][0], bbox[0][1]), Vector2(bbox[1][0], bbox[0][1]), Vector2(bbox[1][0], bbox[1][1]), Vector2(bbox[0][0], bbox[1][1])).drawWireframe(canvas, "blue")
 
-class PlayerComputer(Player):
+class PlayerComputerLegacy(Player):
 
 	def __init__(self, position, angle, colour):
 		super().__init__(position, angle, colour)
@@ -230,3 +231,87 @@ class PlayerComputer(Player):
 				*pixelFromPosition(self.position + Vector2(cos(radians(targetAngle)) * 0.5, sin(radians(targetAngle)) * 0.5)),
 				fill = "red"
 			)
+
+class PlayerComputer(Player):
+
+	def __init__(self, position, angle, colour):
+		super().__init__(position, angle, colour)
+		self.steeringEpsilon = 2.5
+		self.aimEpsilon = 2
+
+	def getSteeringDirection(self, targetAngle):
+		"""
+		Determines which way is fastest to turn to get to a specific angle.
+		Returns a Direction.LEFT or Direction.RIGHT.
+
+		Arguments:
+			targetAngle (float): The desired angle to turn to.
+
+		Example:
+			>>> self.getSteeringDirection(90)
+			0
+		"""
+
+		if abs(self.angle - targetAngle) < self.steeringEpsilon:
+			return
+
+		if self.angle < targetAngle:
+			if abs(self.angle - targetAngle) < 180:
+				return Direction.RIGHT
+			return Direction.LEFT
+		elif self.angle > targetAngle:
+			if abs(self.angle - targetAngle) < 180:
+				return Direction.LEFT
+			return Direction.RIGHT
+
+	def update(self, canvas, deltaTime, enemy):
+		super().update(canvas, deltaTime, enemy)
+
+		enemySpeed = enemy.speed if enemy.timeout <= 0 else 0
+		enemyVelocity = Vector2(cos(radians(enemy.angle)) * enemySpeed, sin(radians(enemy.angle)) * enemySpeed)
+
+		bulletOffset = Vector2(cos(radians(self.angle)) * self.bulletSpawnDistance, sin(radians(self.angle)) * self.bulletSpawnDistance)
+		relativePosition = enemy.position - self.position - bulletOffset
+		
+		a = Vector2.dot(-enemyVelocity, -enemyVelocity) - Bullet.speed**2
+		b = Vector2.dot(-relativePosition, -enemyVelocity) * 2
+		c = Vector2.dot(-relativePosition, -relativePosition)
+
+		h = -b / (2*a)
+		k2 = h**2 - c/a
+		t = None
+		
+		if k2 == 0:
+			if 0 < h:
+				t = h		
+
+		elif k2 > 0:
+			k = sqrt(k2)
+			root1 = h - k
+			root2 = h + k
+			if 0 < root1:
+				t = root1 
+			elif 0 < root2:
+				t = root2
+
+		if t is not None:
+			target = Vector2(t * enemyVelocity.x + enemy.position.x, t * enemyVelocity.y + enemy.position.y) - self.position
+
+			# Compensate for screenwrap
+			enemyBounds = enemy.polygon.boundingBox
+			enemyWidth = enemyBounds[1][0] - enemyBounds[0][0]
+			enemyHeight = enemyBounds[1][1] - enemyBounds[0][1]
+			target.x -= enemyWidth * int(target.x + self.position.x)
+			target.y -= enemyHeight * int(target.y + self.position.y)
+
+			targetAngle = degrees(atan2(target.y, target.x)) % 360
+
+			steeringTarget = self.getSteeringDirection(targetAngle)
+			if steeringTarget == Direction.RIGHT:
+				self.steerRight(deltaTime)			
+			elif steeringTarget == Direction.LEFT:
+				self.steerLeft(deltaTime)
+
+			if abs(targetAngle - self.angle) <= self.aimEpsilon:
+				self.shoot()
+
