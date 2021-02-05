@@ -1,6 +1,7 @@
 if __name__ == "__main__":
 
 	from game import Game
+	from player import PlayerComputer
 	from interface import InterfaceManager, InterfaceStartup, InterfaceSplash
 	from setup import *
 
@@ -41,6 +42,8 @@ if __name__ == "__main__":
 				game = None
 				ui.currentInterface = InterfaceSplash(ui.titleLogo)
 				ui.music.play()
+			elif response == 2:
+				game = Game(isinstance(game.player1, PlayerComputer), isinstance(game.player2, PlayerComputer), game.player1.colour, game.player2.colour)
 
 	loop(main, 120, time.time())
 	tk.mainloop()

@@ -549,7 +549,7 @@ class InterfacePauseMenu(InterfaceListMenuBase):
 	def __init__(self):
 		self.tick = 0
 		super().__init__(
-			selections = ["Resume", "Quit to Title"],
+			selections = ["Resume", "Restart Game", "Quit to Title"],
 			selectionIndex = 0,
 			selectionSpacing = 0.15
 		)

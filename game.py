@@ -177,6 +177,8 @@ class Game:
 				if response == 0:
 					self.unpause()
 				elif response == 1:
+					return 2
+				elif response == 2:
 					sound.stop("music0")
 					return 1
 		
