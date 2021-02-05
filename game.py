@@ -61,13 +61,13 @@ class Game:
 		
 			if not self.isPaused:
 				# Register keypresses and act accordingly if the player is not an AI
-				if isinstance(self.player1, Player):
+				if not isinstance(self.player1, PlayerComputer):
 					if inputs.key(*binds["p1-accelerate"]): self.player1.accelerate(deltaTime)
 					if inputs.key(*binds["p1-decelerate"]): self.player1.decelerate(deltaTime)
 					if inputs.key(*binds["p1-left"]):       self.player1.steerLeft(deltaTime)
 					if inputs.key(*binds["p1-right"]):      self.player1.steerRight(deltaTime)
 					if inputs.key(*binds["p1-shoot"]):      self.player1.shoot()
-				if isinstance(self.player2, Player):
+				if not isinstance(self.player2, PlayerComputer):
 					if inputs.key(*binds["p2-accelerate"]): self.player2.accelerate(deltaTime)
 					if inputs.key(*binds["p2-decelerate"]): self.player2.decelerate(deltaTime)
 					if inputs.key(*binds["p2-left"]):       self.player2.steerLeft(deltaTime)
@@ -177,7 +177,6 @@ class Game:
 				if response == 0:
 					self.unpause()
 				elif response == 1:
-					#sound.stop("music0")
 					return 2
 				elif response == 2:
 					sound.stop("music0")
