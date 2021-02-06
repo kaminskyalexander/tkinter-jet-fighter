@@ -238,6 +238,9 @@ class PlayerComputer(Player):
 		super().__init__(position, angle, colour)
 		self.steeringEpsilon = 2.5
 		self.aimEpsilon = 2
+		self.distanceWeightMinimum = 0.4
+		self.distanceWeightMaximum = 1.4
+		self.angleWeightMaximum = 110
 
 	def getSteeringDirection(self, targetAngle):
 		"""
@@ -264,15 +267,12 @@ class PlayerComputer(Player):
 				return Direction.LEFT
 			return Direction.RIGHT
 
-	def update(self, canvas, deltaTime, enemy):
-		super().update(canvas, deltaTime, enemy)
+	def getTargetInfo(self, enemyPosition, enemySpeed, enemyAngle, enemyBounds):
 
-		enemySpeed = enemy.speed if enemy.timeout <= 0 else 0
-		enemyVelocity = Vector2(cos(radians(enemy.angle)) * enemySpeed, sin(radians(enemy.angle)) * enemySpeed)
-
+		enemyVelocity = Vector2(cos(radians(enemyAngle)) * enemySpeed, sin(radians(enemyAngle)) * enemySpeed)
 		bulletOffset = Vector2(cos(radians(self.angle)) * self.bulletSpawnDistance, sin(radians(self.angle)) * self.bulletSpawnDistance)
-		relativePosition = enemy.position - self.position - bulletOffset
-		
+		relativePosition = enemyPosition - self.position - bulletOffset
+
 		a = Vector2.dot(-enemyVelocity, -enemyVelocity) - Bullet.speed**2
 		b = Vector2.dot(-relativePosition, -enemyVelocity) * 2
 		c = Vector2.dot(-relativePosition, -relativePosition)
@@ -295,23 +295,71 @@ class PlayerComputer(Player):
 				t = root2
 
 		if t is not None:
-			target = Vector2(t * enemyVelocity.x + enemy.position.x, t * enemyVelocity.y + enemy.position.y) - self.position
+			target = Vector2(t * enemyVelocity.x + enemyPosition.x, t * enemyVelocity.y + enemyPosition.y) - self.position
 
 			# Compensate for screenwrap
-			enemyBounds = enemy.polygon.boundingBox
 			enemyWidth = enemyBounds[1][0] - enemyBounds[0][0]
 			enemyHeight = enemyBounds[1][1] - enemyBounds[0][1]
 			target.x -= enemyWidth * int(target.x + self.position.x)
 			target.y -= enemyHeight * int(target.y + self.position.y)
 
 			targetAngle = degrees(atan2(target.y, target.x)) % 360
+			targetDistance = sqrt(Vector2.dot(target, target))
 
-			steeringTarget = self.getSteeringDirection(targetAngle)
-			if steeringTarget == Direction.RIGHT:
-				self.steerRight(deltaTime)			
-			elif steeringTarget == Direction.LEFT:
-				self.steerLeft(deltaTime)
+			return targetAngle, targetDistance
 
-			if abs(targetAngle - self.angle) <= self.aimEpsilon:
-				self.shoot()
+	def getTargetWeight(self, targetAngle, targetDistance):
 
+		if targetDistance < self.distanceWeightMinimum:
+			distanceWeight = 1
+
+		elif targetDistance > self.distanceWeightMaximum:
+			distanceWeight = 0
+
+		else:
+			m = -1/(self.distanceWeightMaximum - self.distanceWeightMinimum)
+			b = 1 - m * self.distanceWeightMinimum
+			distanceWeight = m * targetDistance + b
+
+		angleWeight = 1 - min(abs(targetAngle - self.angle) / self.angleWeightMaximum, 1)
+
+		return (3*distanceWeight + angleWeight) / 4
+
+	def update(self, canvas, deltaTime, enemy):
+		super().update(canvas, deltaTime, enemy)
+
+		enemySpeed = enemy.speed if enemy.timeout <= 0 else 0
+
+		enemyPositions = [
+			enemy.position + Vector2( 0, -2),
+			enemy.position + Vector2( 0,  2),
+			enemy.position + Vector2(-2,  0),
+			enemy.position + Vector2( 2,  0),
+			enemy.position + Vector2(-2, -2),
+			enemy.position + Vector2(-2,  2),
+			enemy.position + Vector2( 2,  2),
+			enemy.position + Vector2( 2, -2),
+			enemy.position
+		]
+
+		weightedTargets = []
+		for enemyPosition in enemyPositions:
+			targetInfo = self.getTargetInfo(enemyPosition, enemySpeed, enemy.angle, enemy.polygon.boundingBox)
+			if targetInfo is not None:
+				targetWeight = self.getTargetWeight(*targetInfo)
+				weightedTargets.append((targetWeight, targetInfo))
+
+		weightedTargets.sort()
+
+		targetAngle, targetDistance = weightedTargets[-1][1]
+
+		targetWeight = self.getTargetWeight(targetAngle, targetDistance)
+
+		steeringTarget = self.getSteeringDirection(targetAngle)
+		if steeringTarget == Direction.RIGHT:
+			self.steerRight(deltaTime)			
+		elif steeringTarget == Direction.LEFT:
+			self.steerLeft(deltaTime)
+
+		if abs(targetAngle - self.angle) <= self.aimEpsilon:
+			self.shoot()
